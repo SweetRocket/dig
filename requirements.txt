@@ -1,0 +1,9 @@
+# django
+django>=4.1.7
+django-phonenumber-field>=7.0.2
+
+
+# opencv
+#opencv-python>=4.7.0
+opencv-contrib-python>=4.7.0
+cmapy>=0.6.6
