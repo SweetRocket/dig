@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello!</title>
+    <meta name="description" content="description" />
+    <meta name="author" content="author" />
+    <meta name="keywords" content="keywords" />
+    <link rel="stylesheet" href="./stylesheet.css" type="text/css" />
+</head>
+
+<body>
+
+    <form method='POST'> {% csrf_token %}
+        <input type="text" placeholder="도시를 입력하세요" name = 'city'>
+        <button type="submit">확인</button>
+
+    </form>
+    <h1>{{day}}</h1>
+    <h1>{{city}}</h1>
+    <h1>{{description}}</h1>
+    <h1>{{temp}}℃</h1>
+
+
+    <img src="http://openweathermap.org/img/w/{{icon}}.png" width="100px">
+</body>
+
+</html>
