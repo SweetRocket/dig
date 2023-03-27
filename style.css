@@ -1,0 +1,63 @@
+* { 
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+div {
+    background-color:#f2f2f2;
+    width: 600px;
+    height: 430px;
+}
+
+.signup_img {
+    display : block;
+    width : 200px;
+    height : 200px;
+}
+
+.empname_box {
+    outline: none;
+    width: 20%;
+
+}
+
+.sibu {
+    height: 40px;
+    width: 300px;
+    background-color: #3771AC;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.wrapper {
+    text-decoration: none;
+    color: black;
+    text-align: center;
+}
+
+.box {
+    width: 50%;
+    height: 30px;
+    cursor: auto;
+}
+
+.empname_text {
+    margin-right: 240px;
+    font-weight: bold;
+}
+
+.username_text {
+    margin-right: 255px;
+    font-weight: bold;
+}
+
+.password1_text {
+    margin-right: 240px;
+    font-weight: bold;
+}
+
+.password2_text {
+    margin-right: 200px;
+    font-weight: bold;
+}
