@@ -3,7 +3,8 @@
     box-sizing: border-box;
 }
 
-div {
+/* 회원가입 */
+.wrapper {
     background-color:#f2f2f2;
     width: 600px;
     height: 430px;
@@ -60,4 +61,104 @@ div {
 .password2_text {
     margin-right: 200px;
     font-weight: bold;
+}
+
+/* 헤더, 네브바 */
+
+.header_img {
+    display : block;
+    width : 15%;
+    height : 15%;
+    float: center;
+}
+
+
+
+nav ul {
+    width: 80%;
+    background-color: #3771AC;
+    list-style-type: none;
+    margin-top: 0;
+    font-weight: bold;
+    color: white;
+    border: 2px solid white;
+  }
+  
+  nav ul li{
+    display: inline-block;
+  }
+
+  .topnav{
+    position: relative;
+    margin-left: 50px;
+    text-align: center;
+  }
+
+  .topnav_menu{               
+    padding:16px 50px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+   
+ .login_but {
+    width: 80px;
+    height: 30px;
+    background-color: #F1C40F;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-right: 20px;
+
+}
+
+  .signup_but {
+    width: 80px;
+    height: 30px;
+    background-color: #F1C40F;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    float: right;
+    margin-right: 160px;
+  }
+
+/************ footer ************/
+ footer {
+    background-color: lightgray;
+    border-top: 1px solid #333;
+    width: 100%;
+    margin-top: 50px;
+    height: 230px;
+    }
+footer .inner {
+    padding-top: 0;
+    }
+footer .info {
+    margin-top: 20px;
+    text-align: center;
+    }
+footer .info span {
+    margin-right: 20px;
+    color: black;
+    font-size: 12px;
+    }
+footer .info span:last-child {
+    margin-right: 0;
+    }
+footer .copyright {
+    color: black;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 12px;
+    }
+footer .logo {
+    display:block;
+    margin: auto;
+    }
+
+.familysites {
+    
+    text-align: center;
 }
