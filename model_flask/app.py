@@ -22,6 +22,28 @@ client_list = {}
 output_queue = LifoQueue(maxsize=128)
 
 
+# 오류 발생시 출력만 하고 넘어가기 위한 decorator
+def tryExceptDecorator(*deco_args, **deco_kwargs):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            try:
+                return function(*args, **kwargs)
+            except Exception as e:
+                if not deco_kwargs.get('ignore', False):
+                    print(e)
+        return wrapper
+    return decorator
+
+
+# 오류 발생시 출력만 하고 넘어가기 위한 function
+def tryExceptFunction(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except Exception as e:
+        if not kwargs.get('ignore', False):
+            print(e)
+
+
 class Singleton(type):
     """ 
     Simple Singleton that keep only one value for all instances
@@ -47,18 +69,33 @@ class Models(metaclass=Singleton):
     # 클래스 초기화
     def __init__(self, equip_model_path='models/equip/best.pt', handmotion_model_path='models/handmotion/best.pt', confidence=0.5):
         # 연산 device 설정
-        self.device = torch.device(
-            # 'cuda:0' if torch.cuda.is_available() else
-            'cpu')
+        gpu = 0
+        torch_device = f'cuda:{gpu}' if torch.cuda.is_available() else 'cpu'
+        
+        if torch.cuda.is_available():
+            torch.cuda.set_device(gpu)
+        
+        self.loaded = False
+        self.device = torch.device(torch_device)
 
-        # if torch.cuda.is_available():
-        #     torch.cuda.set_device(self.device)
+        self.equip_model_path = equip_model_path
+        self.handmotion_model_path = handmotion_model_path
+        self.confidence = confidence
+        
+        self.is_loading = False
 
+    # 모델 lazy load
+    def load(self):
+        # 로딩중이거나 이미 로딩 된 경우 그냥 return
+        if self.is_loading or self.loaded:
+            return
+        self.is_loading = True
+        
         # torch hub를 사용한 model 로드
         self.equip_model = torch.hub.load(
-            'ultralytics/yolov5', 'custom', path=equip_model_path)
+            'ultralytics/yolov5', 'custom', path=self.equip_model_path)
         self.handmotion_model = torch.hub.load(
-            'ultralytics/yolov5', 'custom', path=handmotion_model_path)
+            'ultralytics/yolov5', 'custom', path=self.handmotion_model_path)
 
         # 해당 모델을 사용할 device로 옮김
         self.equip_model.to(self.device)
@@ -69,11 +106,20 @@ class Models(metaclass=Singleton):
         self.handmotion_model.eval()
 
         # confidence 설정
-        self.equip_model.conf = confidence
-        self.handmotion_model.conf = confidence
+        self.equip_model.conf = self.confidence
+        # self.handmotion_model.conf = self.confidence
+
+        # 로딩 완료 flag 설정
+        self.loaded = True
+        self.is_loading = False
+
 
     # 이미지에서 Object Detection을 수행
     def detect(self, img, mhi_img, size=640):
+        # 모델이 로딩되지 않았다면 로딩
+        if not self.loaded:
+            self.load()
+
         ret = []
 
         # 이미지 predict
@@ -102,28 +148,6 @@ class Models(metaclass=Singleton):
                 })
 
         return ret
-
-
-# 오류 발생시 출력만 하고 넘어가기 위한 decorator
-def tryExceptDecorator(*deco_args, **deco_kwargs):
-    def decorator(function):
-        def wrapper(*args, **kwargs):
-            try:
-                return function(*args, **kwargs)
-            except Exception as e:
-                if not deco_kwargs.get('ignore', False):
-                    print(e)
-        return wrapper
-    return decorator
-
-
-# 오류 발생시 출력만 하고 넘어가기 위한 function
-def tryExceptFunction(func, *args, **kwargs):
-    try:
-        return func(*args, **kwargs)
-    except Exception as e:
-        if not kwargs.get('ignore', False):
-            print(e)
 
 
 class Streamer():
@@ -173,6 +197,10 @@ class Streamer():
         if self.run_trigger:
             return
         self.run_trigger = True
+
+        # 모델이 로딩되지 않았다면 로딩
+        if not self.models.loaded:
+            self.models.load()
 
         if self.device is None:
             if platform.system() == 'Windows':
