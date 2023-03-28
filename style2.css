@@ -1,0 +1,51 @@
+* { 
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+li {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.menu {
+  width: 80%;
+
+}
+
+.menu > li {
+  width: 20%; /*20*5=100%*/
+  float: left;
+  text-align: center;
+  line-height: 40px;
+  background-color: #3771AC;
+}
+
+.menu a {
+  color: #fff;
+  font-weight: bold;
+}
+
+.submenu > li {
+  line-height: 50px;
+  background-color: #F1C40F;
+  text-align: center;
+  margin-right: 40px;
+}
+
+.submenu {
+  height: 0; /*ul의 높이를 안보이게 처리*/
+  overflow: hidden;
+}
+.menu > li:hover {
+  background-color: #F1C40F;
+  transition-duration: 0.2s;
+}
+
+.menu > li:hover .submenu {
+  height: 100px; /*서브메뉴 li한개의 높이 50*5*/
+  transition-duration: 1s;
+}
