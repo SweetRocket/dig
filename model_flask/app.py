@@ -1,10 +1,11 @@
 # Flask import
-from flask import Flask, render_template, Response, stream_with_context
+from flask import Flask
 from flask import g
 
 # Flask socks
 from flask_sock import Sock
 from simple_websocket import Server as WSServer
+from simple_websocket.ws import ConnectionClosed
 
 # other import
 import cv2
@@ -13,11 +14,11 @@ import torch
 import cmapy
 import json
 import platform
+import base64
 import time
 from threading import Thread
-from queue import Queue
 
-# Singleton: 클래스 선언시, 인스턴스가 하나만 생성되도록 함
+
 class Singleton(type):
     """ 
     Simple Singleton that keep only one value for all instances
@@ -32,24 +33,42 @@ class Singleton(type):
             cls.instance = super(Singleton, cls).__call__(*args, **kwargs)
         return cls.instance
 
-# Models: 모델을 로드하고 저장하는 클래스
+
 class Models(metaclass=Singleton):
-    def __init__(self, equip_model_path = 'models/equip/best.pt', handmotion_model_path = 'models/handmotion/best.pt'):
+    """
+    Models
+
+    모델을 로딩하며, 미리 불러와 저장하는 클래스
+    """
+
+    # 클래스 초기화
+    def __init__(self, equip_model_path='models/equip/best.pt', handmotion_model_path='models/handmotion/best.pt', confidence=0.5):
         # 연산 device 설정
-        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        
+        self.device = torch.device(
+            'cuda:0' if torch.cuda.is_available() else 'cpu')
+
         # torch hub를 사용한 model 로드
-        self.equip_model = torch.hub.load('ultralytics/yolov5', 'custom', path=equip_model_path)
-        self.handmotion_model = torch.hub.load('ultralytics/yolov5', 'custom', path=handmotion_model_path)
-        
+        self.equip_model = torch.hub.load(
+            'ultralytics/yolov5', 'custom', path=equip_model_path)
+        self.handmotion_model = torch.hub.load(
+            'ultralytics/yolov5', 'custom', path=handmotion_model_path)
+
         # 해당 모델을 사용할 device로 옮김
         self.equip_model.to(self.device)
         self.handmotion_model.to(self.device)
-    
+
+        # 모델을 eval 모드로 설정
+        self.equip_model.eval()
+        self.handmotion_model.eval()
+
+        # confidence 설정
+        self.equip_model.conf = confidence
+        self.handmotion_model.conf = confidence
+
     # 이미지에서 Object Detection을 수행
-    def detect(self, img, mhi_img, size = 640):
+    def detect(self, img, mhi_img, size=640):
         ret = []
-        
+
         # 이미지 predict
         results = {
             'handmotion': self.handmotion_model(mhi_img, size),
@@ -78,127 +97,83 @@ class Models(metaclass=Singleton):
         return ret
 
 
-# 스트리밍용 클래스
 class Streamer():
+    """
+    모델을 감지한 값을 실시간으로 스트리밍하기 위한 클래스
+    """
 
-    def __init__(self, device_id, pos=15, cmap = 'nipy_spectral', confidence = 0.5):
+    # 클래스 초기화
+    def __init__(self, device_id, pos=15, cmap='nipy_spectral', confidence=0.5):
         # 기본 설정
         self.device = None
         self.device_id = device_id
         self.started = False
-        self.thread = None
-        
-        # 모델 설정
-        self.confidence = confidence
-        
+
+        # thread
+        self.detect_thread = None
+        self.ws_thread = None
+
         # MHI용 설정
         self.pos = pos
         self.cmap = cmapy.cmap(cmap)
 
         # 배경 제거 모델
         self.fgbg = cv2.createBackgroundSubtractorMOG2()
-        
+
         # 모델
-        self.models = Models()
-        
-        # frame queue
-        self.queue_size = 64
-        self.frame_queue = Queue(maxsize=self.queue_size)
-        self.mhi_queue = Queue(maxsize=self.queue_size)
-        self.boxed_queue = Queue(maxsize=self.queue_size)
-        
+        self.models = Models(confidence=confidence)
+
         # ws
         self.ws_client_list = []
 
+        # status
+        self.started = False
+        self.worked = False
+
     # 실행
     # Thread를 사용하여, 실시간으로 frame을 받아와 저장
-    def run(self) :
+    def run(self):
         self.stop()
-        
+
         if self.device is None:
-            if platform.system() == 'Windows' :        
+            if platform.system() == 'Windows':
                 self.device = cv2.VideoCapture(self.device_id, cv2.CAP_DSHOW)
             else:
                 self.device = cv2.VideoCapture(self.device_id)
 
-            #self.fps = int(1000/self.device.get(cv2.CAP_PROP_FPS))
             self.width = int(self.device.get(cv2.CAP_PROP_FRAME_WIDTH))
             self.height = int(self.device.get(cv2.CAP_PROP_FRAME_HEIGHT))
-            self.mhi_history = np.zeros((self.height, self.width), dtype=np.int16)
-        
+            self.mhi_history = np.zeros(
+                (self.height, self.width), dtype=np.int16)
+
+            # fps
+            try:
+                self.fps_delay = 1/self.device.get(cv2.CAP_PROP_FPS)
+            except:
+                self.fps_delay = 1/30
+
         # Thread 시작
-        if self.thread is None :
-            self.thread = Thread(target=self.update, args=())
-            self.thread.daemon = True
-            self.thread.start()
-        
+        self.thread_start()
+
         self.started = True
-    
+
+    def thread_start(self):
+        if self.detect_thread is None:
+            self.detect_thread = Thread(target=self.update, args=())
+            self.detect_thread.daemon = False
+            self.detect_thread.start()
+
+        if self.ws_thread is None:
+            self.ws_thread = Thread(target=self.ws_update, args=())
+            self.ws_thread.daemon = True
+            self.ws_thread.start()
+
     # Thread 및 Device 정지
     def stop(self):
         self.started = False
-        
-        if self.device is not None :
+
+        if self.device is not None:
             self.device.release()
-            self.clear()
-    
-    # Queue 정리 (최소 단위 및 해당하는 queue만)
-    def clear_queue(self, time = None):
-        if time is None:
-            time = self.queue_size // 2
-        
-        if self.frame_queue.qsize() > time:
-            self.clear_frame()
-        
-        if self.mhi_queue.qsize() > time:
-            self.clear_mhi()
-        
-        if self.boxed_queue.qsize() > time:
-            self.clear_boxed()
-
-    # Queue 정리
-    def clear(self):
-        self.clear_frame()
-        self.clear_mhi()
-        self.clear_boxed()
-
-    def clear_frame(self):
-        with self.frame_queue.mutex:
-            self.frame_queue.queue.clear()
-    
-    def clear_mhi(self):
-        with self.mhi_queue.mutex:
-            self.mhi_queue.queue.clear()
-    
-    def clear_boxed(self):
-        with self.boxed_queue.mutex:
-            self.boxed_queue.queue.clear()
-            
-    def drop_queue(self, time = None):
-        if time is None:
-            time = self.queue_size // 2
-
-        if self.frame_queue.qsize() > time:
-            self.drop_frame_queue(time)
-        
-        if self.mhi_queue.qsize() > time:
-            self.drop_mhi_queue(time)
-        
-        if self.boxed_queue.qsize() > time:
-            self.drop_boxed_queue(time)
-
-        
-    def drop_frame_queue(self, time):
-        for _ in range(time):
-            self.frame_queue.get()
-
-    def drop_mhi_queue(self, time):
-        for _ in range(time):
-            self.mhi_queue.get()
-    
-    def drop_boxed_queue(self, time):
-        for _ in range(time):
-            self.boxed_queue.get()
 
     # Thread 함수
     def update(self):
@@ -206,39 +181,56 @@ class Streamer():
             # 시작할때까지 대기
             if not self.started:
                 continue
-
-            # 임시. Queue 사이즈가 절반 이상이면 clear
-            # Queue를 buffer로 써 계속 streaming을 반복하기 위함.
-            self.clear_queue()
-
             try:
-                self.frame_queue.put(self.get_frame())
-                self.mhi_queue.put(self.get_mhi())
-                self.detected = detected = self.detect()
-                self.boxed_queue.put(self.draw_box(detected))
-                self.send_detected_ws()
+                self.frame = self.get_frame()
+                self.mhi_frame = self.get_mhi()
+                self.detected = self.detect()
+                self.boxed_frame = self.draw_box()
+                self.worked = True
             except Exception as e:
                 print(e)
                 continue
-            
-    def send_detected_ws(self, detected = None):
-        if detected is None:
-            detected = self.detected
-        
-        clients = self.ws_client_list.copy()
-        for client in clients:
-            try:
-                j = json.dumps(detected)
-                client.send(j)
-            except Exception as e:
-                client.send(json.dumps({'error': str(e)}))
-                client.close()
-                self.ws_client_list.remove(client)
+
+    def ws_update(self):
+        while True:
+            if not self.started or not self.worked:
+                continue
+            time.sleep(self.fps_delay)
+            clients = self.ws_client_list.copy()
+            for client in clients:
+                try:
+                    j = self.prepare_ws_data()
+                    client.send(j)
+                except ConnectionClosed:
+                    self.remove_ws_client(client)
+                except Exception as e:
+                    client.send(json.dumps(
+                        {'status': 'error', 'error': str(e)}))
+                    client.close()
+                    self.remove_ws_client(client)
+
+    # convert numpy cv2 array to jpg base64 string
+    def img_array_to_jpg_base64(self, img):
+        jpg = cv2.imencode('.jpg', img)[1]
+        return base64.b64encode(jpg).decode('utf-8')
+
+    def prepare_ws_data(self):
+        return json.dumps({
+            'status': 'ok',
+            'detected': self.detected,
+            'boxed': self.img_array_to_jpg_base64(self.boxed_frame),
+        })
+
+    def add_ws_client(self, client):
+        self.ws_client_list.append(client)
+
+    def remove_ws_client(self, client):
+        self.ws_client_list.remove(client)
 
     # 빈 frame
     def blank(self):
         return np.ones(shape=[self.height, self.width, 3], dtype=np.uint8)
-    
+
     # 빈 jpg
     def blank_jpg(self):
         return cv2.imencode('.jpg', self.blank())[1]
@@ -248,12 +240,10 @@ class Streamer():
         # 진행전 전처리
         if self.device is None or self.device.isOpened() is False:
             frame = self.blank()
-        else :
+        else:
             ret, frame = self.device.read()
             if ret != True:
                 frame = self.blank()
-        
-        self.frame = frame
         return frame
 
     # mhi stands for motion history image
@@ -262,8 +252,10 @@ class Streamer():
         fgmask = self.fgbg.apply(self.frame)
 
         # make 24 frame of history based on fgmask
-        self.mhi_history = np.where(fgmask == 255, 255 + self.pos, self.mhi_history)
-        self.mhi_history = np.where(self.mhi_history > -100, self.mhi_history - self.pos, self.mhi_history)
+        self.mhi_history = np.where(
+            fgmask == 255, 255 + self.pos, self.mhi_history)
+        self.mhi_history = np.where(
+            self.mhi_history > -100, self.mhi_history - self.pos, self.mhi_history)
 
         # make clip for safety
         self.mhi_history = np.clip(self.mhi_history, 0, 255)
@@ -272,139 +264,71 @@ class Streamer():
         # color map
         color_map_history = cv2.applyColorMap(history_frame, self.cmap)
 
-        self.mhi_frame = color_map_history
         return color_map_history
-    
-    # 감지   
+
+    # 감지
     def detect(self):
-        self.detected = self.models.detect(self.frame, self.mhi_frame)
-        return self.detected
-    
+        return self.models.detect(self.frame, self.mhi_frame)
+
     # bbox 그리기
-    def draw_box(self, detect = None):
-        if detect is None:
-            detect = self.detect()
+    def draw_box(self):
         f = self.frame.copy()
-        
-        for d in detect:
+
+        for d in self.detect():
             name = f'{d["model"]}_{d["cls_name"]}, {d["confidence"]:.2f}'
-            
+
             x1, y1, x2, y2 = d['x1'], d['y1'], d['x2'], d['y2']
             cv2.rectangle(f, (x1, y1), (x2, y2), (0, 255, 0), 1)
-            cv2.putText(f, name, (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
-        
-        self.boxed_frame = f
+            cv2.putText(f, name, (x1, y1),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+
         return f
-    
-    # Queue에서 frame을 받아옴
-    def read_frame(self):
-        return self.frame_queue.get(block=True, timeout = 20)
-    
-    # Queue에서 mhi frame를 받아옴
-    def read_mhi(self):
-        return self.mhi_queue.get(block=True, timeout = 20)
-    
-    # Queue에서 boxed frame를 받아옴
-    def read_boxed(self):
-        return self.boxed_queue.get(block=True, timeout = 20)
-    
-    # jpg로 변환하여 stream에 맞는 형태로 변환
-    def _gen(self, f, name):
-        ret, buffer = cv2.imencode('.jpg', f)
-        if ret != True:
-            buffer = self.blank_jpg()
-        frame = buffer.tobytes()
-        return (b'--' + name + b'\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-    
-    def gen_frame(self):
-        try:
-            d = self.read_frame()
-        except Exception as e:
-            d = self.blank()
-        return self._gen(d, b'image_frame')
-    
-    def gen_mhi(self):
-        try:
-            d = self.read_mhi()
-        except Exception as e:
-            d = self.blank()
-        return self._gen(d, b'image_mhi')
 
-    def gen_boxed(self):
-        try:
-            d = self.read_boxed()
-        except Exception as e:
-            d = self.blank()
-        return self._gen(d, b'image_boxed')
-
-# Stream 을 맞게 yield 하는 함수
-def stream_gen(streamer, target = 'boxed'):
-    try:      
-        while True:
-            if streamer.started:
-                if target == 'boxed':
-                    yield streamer.gen_boxed()
-                elif target == 'mhi':
-                    yield streamer.gen_mhi()
-                elif target == 'frame':
-                    yield streamer.gen_frame()
-                else:
-                    raise Exception('Invalid target')
-            else:
-                raise Exception('Streamer stopped')
-    except Exception as e:
-        streamer.stop()
-        return e
 
 # 중복 방지 및 context 유지를 위하여 flask에서 사용하는 global 변수를 사용
-def get_streamer(device_id, pos=15, cmap = 'nipy_spectral', confidence = 0.5) -> Streamer:
+def get_streamer(device_id, pos=15, cmap='nipy_spectral', confidence=0.5) -> Streamer:
     n = f'streamer_{device_id}'
     s = getattr(g, n, None)
     if s is None:
         s = Streamer(device_id, pos, cmap, confidence)
         setattr(g, n, s)
-        s.run()
     return s
+
 
 # flask app
 app = Flask(__name__)
 sock = Sock(app)
 
-
-# box를 그린 frame을 stream
-@app.route('/feed/video/<int:device_id>', methods=['GET'])
-def video_feed(device_id):    
-    try:
-        streamer = get_streamer(device_id)
-
-        return Response(stream_with_context(stream_gen(streamer, 'boxed')),
-                    mimetype='multipart/x-mixed-replace; boundary=image_boxed')
-    
-    except Exception as e:
-        print(e)
-        return Response(
-            "Unknown Server Error",
-            status=500,
-        )
-
 # json을 stream (via WebSocket)
-@sock.route('/feed/json/<int:device_id>')
-def json_feed(ws: WSServer, device_id):
-    try:
-        streamer = get_streamer(device_id)
 
-        streamer.ws_client_list.append(ws)
+
+@sock.route('/feed/<int:device_id>')
+def json_feed(ws: WSServer, device_id):
+    # streamer 불러옴
+    streamer = get_streamer(device_id)
+
+    # streamer가 시작되지 않았다면 시작
+    if streamer.started is False:
+        streamer.run()
+
+    try:
+        streamer.add_ws_client(ws)
         while True:
             data = ws.receive()
             if data == 'stop':
+                ws.send(json.dumps({'status': 'stopped'}))
                 break
-        streamer.ws_client_list.remove(ws)
+        streamer.remove_ws_client(ws)
     except Exception as e:
         print(e)
-        ws.send(e)
+        ws.send(json.dumps({'status': 'error', 'error': str(e)}))
     finally:
         ws.close()
+
+    # 모든 client가 종료되면 streamer 종료
+    if len(streamer.ws_client_list) == 0:
+        streamer.stop()
+
 
 # Flask 실행
 if __name__ == '__main__':
