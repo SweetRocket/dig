@@ -1,29 +1,57 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello!</title>
+    <title>Weather</title>
     <meta name="description" content="description" />
     <meta name="author" content="author" />
     <meta name="keywords" content="keywords" />
-    <link rel="stylesheet" href="./stylesheet.css" type="text/css" />
+    <link rel="stylesheet" href="{% static 'styles.css' %}" type="text/css" />
+
+
+    <style>
+
+
+
+    </style>
 </head>
 
 <body>
+    <div class="weatherwidget">
+        <!-- Weather widget by https://meteodays.com -->
+        <a id="ms-informer-link-4969598617673cda4578f2dff5f64718" class="ms-informer-link"
+            href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
+        <script class="ms-informer-script"
+            src="https://meteodays.com/ko/informer/script/4969598617673cda4578f2dff5f64718"></script>
+        <!-- End -->
+    </div>
 
-    <form method='POST'> {% csrf_token %}
-        <input type="text" placeholder="도시를 입력하세요" name = 'city'>
-        <button type="submit">확인</button>
+    <div class="flex-container">
 
-    </form>
-    <h1>{{day}}</h1>
-    <h1>{{city}}</h1>
-    <h1>{{description}}</h1>
-    <h1>{{temp}}℃</h1>
+        <div class="weathertoday">
+            <h2>오늘의 날씨</h2>
+            <!-- Weather widget by https://meteodays.com -->
+            <a id="ms-informer-link-fadec11983242b6cd2011189806a8e60" class="ms-informer-link"
+                href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
+            <script class="ms-informer-script"
+                src="https://meteodays.com/ko/informer/script/fadec11983242b6cd2011189806a8e60"></script>
+            <!-- End -->
+        </div>
 
+        <div class="weatherforecast">
+            <h2>일기 예보&nbsp&nbsp&nbsp&nbsp&nbsp</h2>
+            <!-- Weather widget by https://meteodays.com -->
+            <a id="ms-informer-link-78597bb2fab1cda8d78aa09db06d2c23" class="ms-informer-link"
+                href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
+            <script class="ms-informer-script"
+                src="https://meteodays.com/ko/informer/script/78597bb2fab1cda8d78aa09db06d2c23"></script>
+            <!-- End -->
+        </div>
+    </div>
 
-    <img src="http://openweathermap.org/img/w/{{icon}}.png" width="100px">
+    </div>
 </body>
 
 </html>

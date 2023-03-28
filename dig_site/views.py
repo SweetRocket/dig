@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 
 def ex_info(request):
-    return render(request, 'dig_site/ex_info_new.html')
+    return render(request, 'dig_site/ex_info.html')
 
 def index(request):
     return render(request, 'dig_site/index.html')

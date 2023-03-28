@@ -1,0 +1,32 @@
+body {
+    background-color: white;
+    color: black;
+}
+
+.weatherwidget {
+    margin-top: 10px;
+    width: 400px;
+    height: 150px;
+}
+
+.flex-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+.weathertoday {
+    padding-left:50px;
+    padding-right:50px;
+    padding-bottom: 50px;
+}
+
+.weatherforecast {
+    margin-left: 350px;
+    margin-right: 300px;
+}
+
+h2 {
+    text-align: center;
+}
