@@ -1,11 +1,11 @@
 # Flask import
-from flask import Flask
+from queue import LifoQueue
+from flask import Flask, render_template
 from flask import g
 
 # Flask socks
 from flask_sock import Sock
 from simple_websocket import Server as WSServer
-from simple_websocket.ws import ConnectionClosed
 
 # other import
 import cv2
@@ -17,6 +17,9 @@ import platform
 import base64
 import time
 from threading import Thread
+
+client_list = {}
+output_queue = LifoQueue(maxsize=128)
 
 
 class Singleton(type):
@@ -45,7 +48,11 @@ class Models(metaclass=Singleton):
     def __init__(self, equip_model_path='models/equip/best.pt', handmotion_model_path='models/handmotion/best.pt', confidence=0.5):
         # 연산 device 설정
         self.device = torch.device(
-            'cuda:0' if torch.cuda.is_available() else 'cpu')
+            # 'cuda:0' if torch.cuda.is_available() else
+            'cpu')
+
+        # if torch.cuda.is_available():
+        #     torch.cuda.set_device(self.device)
 
         # torch hub를 사용한 model 로드
         self.equip_model = torch.hub.load(
@@ -97,6 +104,28 @@ class Models(metaclass=Singleton):
         return ret
 
 
+# 오류 발생시 출력만 하고 넘어가기 위한 decorator
+def tryExceptDecorator(*deco_args, **deco_kwargs):
+    def decorator(function):
+        def wrapper(*args, **kwargs):
+            try:
+                return function(*args, **kwargs)
+            except Exception as e:
+                if not deco_kwargs.get('ignore', False):
+                    print(e)
+        return wrapper
+    return decorator
+
+
+# 오류 발생시 출력만 하고 넘어가기 위한 function
+def tryExceptFunction(func, *args, **kwargs):
+    try:
+        return func(*args, **kwargs)
+    except Exception as e:
+        if not kwargs.get('ignore', False):
+            print(e)
+
+
 class Streamer():
     """
     모델을 감지한 값을 실시간으로 스트리밍하기 위한 클래스
@@ -107,11 +136,9 @@ class Streamer():
         # 기본 설정
         self.device = None
         self.device_id = device_id
-        self.started = False
 
         # thread
         self.detect_thread = None
-        self.ws_thread = None
 
         # MHI용 설정
         self.pos = pos
@@ -121,19 +148,31 @@ class Streamer():
         self.fgbg = cv2.createBackgroundSubtractorMOG2()
 
         # 모델
-        self.models = Models(confidence=confidence)
+        self.models = Models()
 
         # ws
         self.ws_client_list = []
 
         # status
+        self.run_trigger = False
         self.started = False
         self.worked = False
+
+        self.box_color = {
+            'OK': (0, 255, 0),
+            'NO': (0, 0, 255),
+            'HAND': (255, 0, 0)
+        }
+
+    def status(self):
+        return self.started and self.worked
 
     # 실행
     # Thread를 사용하여, 실시간으로 frame을 받아와 저장
     def run(self):
-        self.stop()
+        if self.run_trigger:
+            return
+        self.run_trigger = True
 
         if self.device is None:
             if platform.system() == 'Windows':
@@ -150,23 +189,16 @@ class Streamer():
             try:
                 self.fps_delay = 1/self.device.get(cv2.CAP_PROP_FPS)
             except:
-                self.fps_delay = 1/30
+                self.fps_delay = 1/25
 
         # Thread 시작
-        self.thread_start()
-
-        self.started = True
-
-    def thread_start(self):
         if self.detect_thread is None:
             self.detect_thread = Thread(target=self.update, args=())
-            self.detect_thread.daemon = False
+            self.detect_thread.daemon = True
             self.detect_thread.start()
 
-        if self.ws_thread is None:
-            self.ws_thread = Thread(target=self.ws_update, args=())
-            self.ws_thread.daemon = True
-            self.ws_thread.start()
+        self.started = True
+        self.run_trigger = False
 
     # Thread 및 Device 정지
     def stop(self):
@@ -174,6 +206,8 @@ class Streamer():
 
         if self.device is not None:
             self.device.release()
+
+        self.worked = False
 
     # Thread 함수
     def update(self):
@@ -186,46 +220,40 @@ class Streamer():
                 self.mhi_frame = self.get_mhi()
                 self.detected = self.detect()
                 self.boxed_frame = self.draw_box()
+
                 self.worked = True
+
+                try:
+                    time.sleep(self.fps_delay)
+                    output_queue.put_nowait(
+                        (self.device_id, self.prepare_data()))
+                except:
+                    pass
             except Exception as e:
                 print(e)
                 continue
 
-    def ws_update(self):
-        while True:
-            if not self.started or not self.worked:
-                continue
-            time.sleep(self.fps_delay)
-            clients = self.ws_client_list.copy()
-            for client in clients:
-                try:
-                    j = self.prepare_ws_data()
-                    client.send(j)
-                except ConnectionClosed:
-                    self.remove_ws_client(client)
-                except Exception as e:
-                    client.send(json.dumps(
-                        {'status': 'error', 'error': str(e)}))
-                    client.close()
-                    self.remove_ws_client(client)
+    def prepare_data(self):
+        try:
+            boxed = self.boxed_frame.copy()
+            det = self.detected.copy()
+
+            j = {
+                'status': 'ok',
+                'detected': det,
+                'boxed_frame': self.img_array_to_jpg_base64(boxed),
+            }
+        except Exception as e:
+            j = {
+                'status': 'error',
+                'error': str(e),
+            }
+        return json.dumps(j)
 
     # convert numpy cv2 array to jpg base64 string
     def img_array_to_jpg_base64(self, img):
         jpg = cv2.imencode('.jpg', img)[1]
         return base64.b64encode(jpg).decode('utf-8')
-
-    def prepare_ws_data(self):
-        return json.dumps({
-            'status': 'ok',
-            'detected': self.detected,
-            'boxed': self.img_array_to_jpg_base64(self.boxed_frame),
-        })
-
-    def add_ws_client(self, client):
-        self.ws_client_list.append(client)
-
-    def remove_ws_client(self, client):
-        self.ws_client_list.remove(client)
 
     # 빈 frame
     def blank(self):
@@ -275,17 +303,34 @@ class Streamer():
         f = self.frame.copy()
 
         for d in self.detect():
+            color = self.get_box_color(d['model'], d['cls_name'])
+
             name = f'{d["model"]}_{d["cls_name"]}, {d["confidence"]:.2f}'
 
             x1, y1, x2, y2 = d['x1'], d['y1'], d['x2'], d['y2']
-            cv2.rectangle(f, (x1, y1), (x2, y2), (0, 255, 0), 1)
+            cv2.rectangle(f, (x1, y1), (x2, y2), color, 2)
             cv2.putText(f, name, (x1, y1),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
         return f
 
+    # box color 설정
+    def get_box_color(self, model, name):
+        if model in ['equip']:
+            if 'OK' in name:
+                return self.box_color['OK']
+            return self.box_color['NO']
+        if model == 'hand':
+            return self.box_color['HAND']
+        return (255, 255, 255)
 
-# 중복 방지 및 context 유지를 위하여 flask에서 사용하는 global 변수를 사용
+
+def clear_output_queue():
+    with output_queue.mutex:
+        output_queue.queue.clear()
+
+
+# # 중복 방지 및 context 유지를 위하여 flask에서 사용하는 global 변수를 사용
 def get_streamer(device_id, pos=15, cmap='nipy_spectral', confidence=0.5) -> Streamer:
     n = f'streamer_{device_id}'
     s = getattr(g, n, None)
@@ -293,43 +338,105 @@ def get_streamer(device_id, pos=15, cmap='nipy_spectral', confidence=0.5) -> Str
         s = Streamer(device_id, pos, cmap, confidence)
         setattr(g, n, s)
     return s
+# def get_streamer(device_id, pos=15, cmap='nipy_spectral', confidence=0.5) -> Streamer:
+#     return Streamer(device_id, pos, cmap, confidence)
 
 
 # flask app
-app = Flask(__name__)
+app = Flask(__name__, template_folder='')
+app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 25}
 sock = Sock(app)
-
-# json을 stream (via WebSocket)
 
 
 @sock.route('/feed/<int:device_id>')
 def json_feed(ws: WSServer, device_id):
+    """
+        WebSocket을 사용하여 실시간으로 좌표 로그 및 영상 전송
+    """
+    global client_list
+
     # streamer 불러옴
     streamer = get_streamer(device_id)
 
-    # streamer가 시작되지 않았다면 시작
-    if streamer.started is False:
+    if streamer.started is False and not streamer.run_trigger and len(client_list.get(device_id, [])) == 0:
         streamer.run()
 
-    try:
-        streamer.add_ws_client(ws)
-        while True:
-            data = ws.receive()
-            if data == 'stop':
-                ws.send(json.dumps({'status': 'stopped'}))
-                break
-        streamer.remove_ws_client(ws)
-    except Exception as e:
-        print(e)
-        ws.send(json.dumps({'status': 'error', 'error': str(e)}))
-    finally:
-        ws.close()
+    if client_list.get(device_id, None) is None:
+        client_list[device_id] = []
 
-    # 모든 client가 종료되면 streamer 종료
-    if len(streamer.ws_client_list) == 0:
-        streamer.stop()
+    client_list[device_id].append(ws)
+    try:
+        while True:
+            msg = ws.receive()
+            # stop 메세지를 받으면 종료
+            if msg == 'stop':
+                client_list[device_id].remove(ws)
+                break
+    except Exception as e:
+        # 오류 데이터 전송
+        ws.send(json.dumps({'status': 'error', 'error': str(e)}))
+
+    # # 모든 client가 종료되면 streamer 종료
+    # if len(client_list[device_id]) == 0:
+    #     streamer.stop()
+
+
+# 디버깅용 index template
+@app.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
+
+
+# socket server thread
+def send_socket_message():
+    # 만약을 위해 global 변수 사용
+    global client_list, output_queue
+
+    while True:
+        # GIL hang 방지
+        time.sleep(0.001)
+
+        try:
+            # ouput_queue에서 데이터를 가져옴
+            queue = output_queue.get(block=True, timeout=0.1)
+
+            # output_queue 비우기
+            clear_output_queue()
+
+            # 데이터 분리
+            key, item = queue
+
+            # 클라이언트 리스트 로드
+            clients = client_list.get(key, [])
+        except Exception as e:
+            # 오류 발생시 재시도
+            continue
+
+        # 클라이언트 전송 핸들링 함수
+        def func(client):
+            try:
+                client.send(item)
+            except:
+                # 오류 발생시 클라이언트 close 시도
+                tryExceptFunction(client.close)
+
+                # 오류 발생시 클라이언트 리스트에서 제거 시도
+                tryExceptFunction(client_list[key].remove, client)
+
+        for client in clients:
+            try:
+                # Fire and forget을 위해 thread 사용
+                t = Thread(target=func, args=(client,))
+                t.daemon = False
+                t.start()
+            except Exception as e:
+                # 오류 발생시 클라이언트 리스트에서 제거 시도
+                tryExceptFunction(client_list[key].remove, client)
 
 
 # Flask 실행
 if __name__ == '__main__':
+    ws = Thread(target=send_socket_message)
+    ws.daemon = False
+    ws.start()
     app.run(host='0.0.0.0', threaded=True)  # debug=True

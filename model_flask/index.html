@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Flask App</title>
+  </head>
+  <body>
+    <h1>Test</h1>
+    <div>
+      <img src="" alt="Image" width="640px" height="480px" />
+    </div>
+    <input type="text" name="id" placeholder="0" />
+    <button type="button" onclick="connect()">Connect</button>
+    <button type="button" onclick="disconnect()">Disconnect</button>
+    <button type="button" onclick="stop()">Stop</button>
+    <input type="checkbox" id="retry" name="retry" value="true" />
+    <label for="retry">Retry</label>
+    <p>Client Status: <span id="client_status">Just launched</span></p>
+    <p>Server Status: <span id="server_status">Not connected</span></p>
+    <p>Detected: <span id="detected"></span></p>
+    <p>Error: <span id="error">null</span></p>
+    <script>
+      function getId() {
+        input = document.querySelector("input");
+        if (input.value == "") {
+          input.value = "0";
+        }
+
+        int = parseInt(document.querySelector("input").value, 10);
+        if (int < 0 || isNaN(int)) {
+          return false;
+        }
+
+        return int;
+      }
+
+      let id = getId();
+      let websocket = null;
+
+      function connect() {
+        if (websocket == null) {
+          id = getId();
+          if (id === false) {
+            document.getElementById("error").innerHTML = "Invalid ID";
+            return;
+          }
+
+          websocket = new WebSocket(`ws://localhost:5000/feed/${id}`);
+
+          websocket.onopen = function (event) {
+            document.getElementById("client_status").innerHTML = "Connected";
+            document.getElementById("server_status").innerHTML = "Waiting for response...";
+          };
+
+          websocket.onclose = function (event) {
+            document.getElementById("client_status").innerHTML = "Disconnected";
+            document.getElementById("server_status").innerHTML =
+              "Not connected";
+
+            websocket = null;
+
+            if (document.getElementById("retry").checked) {
+              reconnect();
+            }
+          };
+
+          websocket.onerror = function (event) {
+            document.getElementById("client_status").innerHTML = "Error";
+            document.getElementById("server_status").innerHTML =
+              "Not connected";
+
+            websocket = null;
+
+            if (document.getElementById("retry").checked) {
+              reconnect();
+            }
+          };
+
+          websocket.onmessage = function (event) {
+            const msg = JSON.parse(event.data);
+            const detected = msg?.detected ?? [];
+
+            document.getElementById("server_status").innerHTML =
+              msg?.status ?? "error on parsing";
+            document.getElementById("detected").innerHTML = JSON.stringify(
+              detected,
+              null,
+              2
+            );
+            document.querySelector("img").src =
+              "data:image/png;base64," + msg?.boxed_frame ?? "";
+
+            if (msg?.error) {
+              document.getElementById("error").innerHTML = msg.error;
+            } else {
+              document.getElementById("error").innerHTML = "null";
+            }
+          };
+        }
+      }
+
+      function disconnect() {
+        if (websocket != null) {
+          websocket.close();
+          websocket = null;
+        }
+      }
+
+      function reconnect() {
+        disconnect();
+        connect();
+        document.getElementById("client_status").innerHTML = "Reconnecting...";
+        document.getElementById("server_status").innerHTML = "Waiting for response...";
+      }
+    </script>
+  </body>
+</html>
