@@ -2,6 +2,10 @@
 from flask import Flask, render_template, Response, stream_with_context
 from flask import g
 
+# Flask socks
+from flask_sock import Sock
+from simple_websocket import Server as WSServer
+
 # other import
 import cv2
 import numpy as np
@@ -9,6 +13,7 @@ import torch
 import cmapy
 import json
 import platform
+import time
 from threading import Thread
 from queue import Queue
 
@@ -57,6 +62,7 @@ class Models(metaclass=Singleton):
                 r = result.pandas().xyxy[0].iloc[i, :].values.tolist()
                 x1, y1, x2, y2, confidence, cls_id, cls_name = r
                 x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+                confidence, cls_id = float(confidence), int(cls_id)
 
                 ret.append({
                     'x1': x1,
@@ -96,9 +102,13 @@ class Streamer():
         self.models = Models()
         
         # frame queue
-        self.frame_queue = Queue(maxsize=128)
-        self.mhi_queue = Queue(maxsize=128)
-        self.boxed_queue = Queue(maxsize=128)
+        self.queue_size = 64
+        self.frame_queue = Queue(maxsize=self.queue_size)
+        self.mhi_queue = Queue(maxsize=self.queue_size)
+        self.boxed_queue = Queue(maxsize=self.queue_size)
+        
+        # ws
+        self.ws_client_list = []
 
     # 실행
     # Thread를 사용하여, 실시간으로 frame을 받아와 저장
@@ -119,7 +129,7 @@ class Streamer():
         # Thread 시작
         if self.thread is None :
             self.thread = Thread(target=self.update, args=())
-            self.thread.daemon = False
+            self.thread.daemon = True
             self.thread.start()
         
         self.started = True
@@ -131,6 +141,20 @@ class Streamer():
         if self.device is not None :
             self.device.release()
             self.clear()
+    
+    # Queue 정리 (최소 단위 및 해당하는 queue만)
+    def clear_queue(self, time = None):
+        if time is None:
+            time = self.queue_size // 2
+        
+        if self.frame_queue.qsize() > time:
+            self.clear_frame()
+        
+        if self.mhi_queue.qsize() > time:
+            self.clear_mhi()
+        
+        if self.boxed_queue.qsize() > time:
+            self.clear_boxed()
 
     # Queue 정리
     def clear(self):
@@ -141,12 +165,40 @@ class Streamer():
     def clear_frame(self):
         with self.frame_queue.mutex:
             self.frame_queue.queue.clear()
+    
     def clear_mhi(self):
         with self.mhi_queue.mutex:
             self.mhi_queue.queue.clear()
+    
     def clear_boxed(self):
         with self.boxed_queue.mutex:
             self.boxed_queue.queue.clear()
+            
+    def drop_queue(self, time = None):
+        if time is None:
+            time = self.queue_size // 2
+
+        if self.frame_queue.qsize() > time:
+            self.drop_frame_queue(time)
+        
+        if self.mhi_queue.qsize() > time:
+            self.drop_mhi_queue(time)
+        
+        if self.boxed_queue.qsize() > time:
+            self.drop_boxed_queue(time)
+
+        
+    def drop_frame_queue(self, time):
+        for _ in range(time):
+            self.frame_queue.get()
+
+    def drop_mhi_queue(self, time):
+        for _ in range(time):
+            self.mhi_queue.get()
+    
+    def drop_boxed_queue(self, time):
+        for _ in range(time):
+            self.boxed_queue.get()
 
     # Thread 함수
     def update(self):
@@ -157,13 +209,32 @@ class Streamer():
 
             # 임시. Queue 사이즈가 절반 이상이면 clear
             # Queue를 buffer로 써 계속 streaming을 반복하기 위함.
-            if self.frame_queue.qsize() > 64:
-                self.clear()
+            self.clear_queue()
 
-            self.frame_queue.put(self.get_frame())
-            self.mhi_queue.put(self.get_mhi())
-            self.boxed_queue.put(self.draw_box())
-    
+            try:
+                self.frame_queue.put(self.get_frame())
+                self.mhi_queue.put(self.get_mhi())
+                self.detected = detected = self.detect()
+                self.boxed_queue.put(self.draw_box(detected))
+                self.send_detected_ws()
+            except Exception as e:
+                print(e)
+                continue
+            
+    def send_detected_ws(self, detected = None):
+        if detected is None:
+            detected = self.detected
+        
+        clients = self.ws_client_list.copy()
+        for client in clients:
+            try:
+                j = json.dumps(detected)
+                client.send(j)
+            except Exception as e:
+                client.send(json.dumps({'error': str(e)}))
+                client.close()
+                self.ws_client_list.remove(client)
+
     # 빈 frame
     def blank(self):
         return np.ones(shape=[self.height, self.width, 3], dtype=np.uint8)
@@ -183,7 +254,6 @@ class Streamer():
                 frame = self.blank()
         
         self.frame = frame
-        self.mhi_frame = self.get_mhi()
         return frame
 
     # mhi stands for motion history image
@@ -211,10 +281,12 @@ class Streamer():
         return self.detected
     
     # bbox 그리기
-    def draw_box(self):
+    def draw_box(self, detect = None):
+        if detect is None:
+            detect = self.detect()
         f = self.frame.copy()
         
-        for d in self.detect():
+        for d in detect:
             name = f'{d["model"]}_{d["cls_name"]}, {d["confidence"]:.2f}'
             
             x1, y1, x2, y2 = d['x1'], d['y1'], d['x2'], d['y2']
@@ -226,15 +298,15 @@ class Streamer():
     
     # Queue에서 frame을 받아옴
     def read_frame(self):
-        return self.frame_queue.get()
+        return self.frame_queue.get(block=True, timeout = 20)
     
     # Queue에서 mhi frame를 받아옴
     def read_mhi(self):
-        return self.mhi_queue.get()
+        return self.mhi_queue.get(block=True, timeout = 20)
     
     # Queue에서 boxed frame를 받아옴
     def read_boxed(self):
-        return self.boxed_queue.get()
+        return self.boxed_queue.get(block=True, timeout = 20)
     
     # jpg로 변환하여 stream에 맞는 형태로 변환
     def _gen(self, f, name):
@@ -246,17 +318,25 @@ class Streamer():
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     
     def gen_frame(self):
-        return self._gen(self.read_frame(), b'image_frame')
+        try:
+            d = self.read_frame()
+        except Exception as e:
+            d = self.blank()
+        return self._gen(d, b'image_frame')
     
     def gen_mhi(self):
-        return self._gen(self.read_mhi(), b'image_mhi')
+        try:
+            d = self.read_mhi()
+        except Exception as e:
+            d = self.blank()
+        return self._gen(d, b'image_mhi')
 
     def gen_boxed(self):
-        return self._gen(self.read_boxed(), b'image_boxed')
-
-    # json으로 변환하여 stream에 맞는 형태로 변환
-    def gen_detected(self):
-        return (json.dumps(self.detected).encode() + b'\r\n')
+        try:
+            d = self.read_boxed()
+        except Exception as e:
+            d = self.blank()
+        return self._gen(d, b'image_boxed')
 
 # Stream 을 맞게 yield 하는 함수
 def stream_gen(streamer, target = 'boxed'):
@@ -269,8 +349,6 @@ def stream_gen(streamer, target = 'boxed'):
                     yield streamer.gen_mhi()
                 elif target == 'frame':
                     yield streamer.gen_frame()
-                elif target == 'detected':
-                    yield streamer.gen_detected()
                 else:
                     raise Exception('Invalid target')
             else:
@@ -285,19 +363,21 @@ def get_streamer(device_id, pos=15, cmap = 'nipy_spectral', confidence = 0.5) ->
     s = getattr(g, n, None)
     if s is None:
         s = Streamer(device_id, pos, cmap, confidence)
-        setattr(g, n, s) 
+        setattr(g, n, s)
+        s.run()
     return s
 
 # flask app
 app = Flask(__name__)
+sock = Sock(app)
 
 
 # box를 그린 frame을 stream
 @app.route('/feed/video/<int:device_id>', methods=['GET'])
-def video_feed(device_id):
-    streamer = get_streamer(device_id)
+def video_feed(device_id):    
     try:
-        streamer.run()
+        streamer = get_streamer(device_id)
+
         return Response(stream_with_context(stream_gen(streamer, 'boxed')),
                     mimetype='multipart/x-mixed-replace; boundary=image_boxed')
     
@@ -308,22 +388,23 @@ def video_feed(device_id):
             status=500,
         )
 
-# json을 stream
-# FIXME: 작동안함.
-@app.route('/feed/json/<int:device_id>', methods=['GET'])
-def json_feed(device_id):
-    streamer = get_streamer(device_id)
+# json을 stream (via WebSocket)
+@sock.route('/feed/json/<int:device_id>')
+def json_feed(ws: WSServer, device_id):
     try:
-        streamer.run()
-        return Response(stream_with_context(stream_gen(streamer, 'detected')),
-                        mimetype='application/json')
-                 
+        streamer = get_streamer(device_id)
+
+        streamer.ws_client_list.append(ws)
+        while True:
+            data = ws.receive()
+            if data == 'stop':
+                break
+        streamer.ws_client_list.remove(ws)
     except Exception as e:
         print(e)
-        return Response(
-            "Unknown Server Error",
-            status=500,
-        )
+        ws.send(e)
+    finally:
+        ws.close()
 
 # Flask 실행
 if __name__ == '__main__':
