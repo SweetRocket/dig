@@ -1,18 +1,26 @@
+<!-- {% load bootstrap4 %}
+{% block content %} -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="Login.css" />
+    <link rel="stylesheet" href="style.css" />
+    <img src="images/loginpage.png" class="signup_img">
 </head>
 <body>
-    
-    <div class="login-wrapper">
-        <img src="images/loginpage.png" alt="My Image">
-        <form method="post" action="서버의url" id="login-form">
-            <input type="text" name="userName" placeholder="Username">
-            <input type="password" name="userPassword" placeholder="Password">
-            <input type="submit" value="로그인">
+    <div class="wrapper">
+        <form method="post" action="서버의url" id="login-form"
+        style="padding-top: 75px;">
+            <br>
+            <span class="username_text">아이디</span><br>
+            <input name="username" type="text" class="box">
+            <br><br>
+            <span class="password_text">비밀번호</span><br>
+                <input name="password1" type="password" class="box">
+                <br><br><br>
+                <input type="submit" class="sibu" value="로그인">
+                <br><br>
             <div class="hr">
             <a href="">아이디 찾기</a>
             &nbsp &nbsp
@@ -23,3 +31,4 @@
         </form>
     </div>
 </body>
+{% endblock %}
