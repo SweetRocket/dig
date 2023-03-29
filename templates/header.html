@@ -1,6 +1,18 @@
 {% load static %}
 <div class="header">
-    <img src="{% static 'dig_width.png' %}" class="header_img">
+
+    <div class="weatherwidget">
+        <!-- Weather widget by https://meteodays.com -->
+        <a id="ms-informer-link-4969598617673cda4578f2dff5f64718" class="ms-informer-link"
+            href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
+        <script class="ms-informer-script"
+            src="https://meteodays.com/ko/informer/script/4969598617673cda4578f2dff5f64718"></script>
+        <!-- End -->
+    </div>
+
+    <div class="logo">
+        <a href="#"><img src="{% static 'dig_width.png' %}" class="header_img"></a>
+    </div>
 </div>
 <br>
 
