@@ -29,7 +29,7 @@ def tryExceptDecorator(*deco_args, **deco_kwargs):
             try:
                 return function(*args, **kwargs)
             except Exception as e:
-                if not deco_kwargs.get('ignore', False):
+                if deco_kwargs.get('print_exception', False):
                     print(e)
         return wrapper
     return decorator
@@ -40,7 +40,7 @@ def tryExceptFunction(func, *args, **kwargs):
     try:
         return func(*args, **kwargs)
     except Exception as e:
-        if not kwargs.get('ignore', False):
+        if kwargs.get('print_exception', False):
             print(e)
 
 
@@ -58,6 +58,15 @@ class Singleton(type):
             cls.instance = super(Singleton, cls).__call__(*args, **kwargs)
         return cls.instance
 
+
+
+def fire_and_forget(func):
+    """
+    fire_and_forget decorator
+    """
+    def wrapper(*args, **kwargs):
+        Thread(target=func, args=args, kwargs=kwargs).start()
+    return wrapper
 
 class Models(metaclass=Singleton):
     """
@@ -251,12 +260,12 @@ class Streamer():
 
                 self.worked = True
 
-                try:
-                    time.sleep(self.fps_delay)
+                @fire_and_forget
+                def queue_put():
                     output_queue.put_nowait(
                         (self.device_id, self.prepare_data()))
-                except:
-                    pass
+                
+                queue_put()
             except Exception as e:
                 print(e)
                 continue
@@ -440,7 +449,7 @@ def send_socket_message():
             # 오류 발생시 재시도
             continue
 
-        # 클라이언트 전송 핸들링 함수
+        @fire_and_forget
         def func(client):
             try:
                 client.send(item)
@@ -453,10 +462,7 @@ def send_socket_message():
 
         for client in clients:
             try:
-                # Fire and forget을 위해 thread 사용
-                t = Thread(target=func, args=(client,))
-                t.daemon = False
-                t.start()
+                func(client)
             except Exception as e:
                 # 오류 발생시 클라이언트 리스트에서 제거 시도
                 tryExceptFunction(client_list[key].remove, client)
