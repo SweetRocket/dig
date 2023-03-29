@@ -23,13 +23,19 @@
       
     </div>
     <script>
+      // ID를 가져오는 함수
       function getId() {
-        input = document.querySelector("input");
+        const input = document.querySelector("input");
+
+        // 입력값이 없을 경우 0으로 설정
         if (input.value == "") {
           input.value = "0";
         }
 
-        int = parseInt(document.querySelector("input").value, 10);
+        // 입력값을 정수로 변환
+        const int = parseInt(input.value, 10);
+
+        // 정수가 아닐 경우 false 반환
         if (int < 0 || isNaN(int)) {
           return false;
         }
@@ -40,21 +46,27 @@
       let id = getId();
       let websocket = null;
 
+      // 서버 연결
       function connect() {
         if (websocket == null) {
           id = getId();
+
+          // ID가 잘못된 경우
           if (id === false) {
             document.getElementById("error").innerHTML = "Invalid ID";
             return;
           }
 
+          // 서버 연결
           websocket = new WebSocket(`ws://localhost:5000/feed/${id}`);
 
+          // 서버 연결 상태
           websocket.onopen = function (event) {
             document.getElementById("client_status").innerHTML = "Connected";
             document.getElementById("server_status").innerHTML = "Waiting for response...";
           };
 
+          // 서버 연결 종료
           websocket.onclose = function (event) {
             document.getElementById("client_status").innerHTML = "Disconnected";
             document.getElementById("server_status").innerHTML =
@@ -67,6 +79,7 @@
             }
           };
 
+          // 서버 연결 에러
           websocket.onerror = function (event) {
             document.getElementById("client_status").innerHTML = "Error";
             document.getElementById("server_status").innerHTML =
@@ -79,10 +92,15 @@
             }
           };
 
+          // 서버로부터 메시지 수신
           websocket.onmessage = function (event) {
+            // 서버로부터 받은 메시지를 JSON으로 파싱
             const msg = JSON.parse(event.data);
+
+            // detected가 없을 경우 빈 배열로 설정
             const detected = msg?.detected ?? [];
 
+            // 서버 상태, 감지된 객체, 에러 메시지 출력
             document.getElementById("server_status").innerHTML =
               msg?.status ?? "error on parsing";
             document.getElementById("detected").innerHTML = JSON.stringify(
@@ -93,17 +111,20 @@
             document.querySelector("img").src =
               "data:image/png;base64," + msg?.boxed_frame ?? "";
 
+            // 에러 메시지가 있을 경우 출력
             if (msg?.error) {
               document.getElementById("error").innerHTML = msg.error;
             } else {
               document.getElementById("error").innerHTML = "null";
             }
 
+            // 로그 출력
             log_from_detection(detected);
           };
         }
       }
 
+      // 서버 연결 종료
       function disconnect() {
         if (websocket != null) {
           websocket.close();
@@ -111,6 +132,7 @@
         }
       }
 
+      // 서버 재연결 시도
       function reconnect() {
         disconnect();
         connect();
@@ -118,25 +140,32 @@
         document.getElementById("server_status").innerHTML = "Waiting for response...";
       }
 
+      // detection 로그 출력
       function log_from_detection(detections) {
         const logbox = document.getElementById("logbox");
 
+        // detections array 순회
         detections.forEach((detection) => {
+          // NO나 handmotion이 아닐 경우 무시
           if (!(detection['cls_name'].includes('NO') || detection['model'] == 'handmotion')) {
             return;
           }
 
+          // confidence가 0.8보다 작을 경우 무시
           if (detection['confidence'] < 0.8) {
             return;
           }
-
+          
+          // 현재 시간
           const now = new Date().toLocaleTimeString();
 
+          // logbox에 로그 출력
           const p = document.createElement("p");
           p.innerHTML = `[${now}] ${detection['model']}: ${detection['cls_name']} - ${detection['confidence']}`
           logbox.appendChild(p);
         });
 
+        // logbox에 10개 이상의 로그가 있을 경우 가장 오래된 로그 삭제
         if (logbox.childElementCount > 10) {
           logbox.removeChild(logbox.firstChild);
         }
