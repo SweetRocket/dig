@@ -1,102 +1,52 @@
-<!DOCTYPE html>
-<html lang="ko">
+{% extends 'base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=
-    , initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/bxslider/4.2.12/jquery.bxslider.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $(".slider").bxSlider({
-                auto: true,
-                speed: 1000,
-                pause: 3000,
-                mode: 'horizontal',
-                autoControls: true,
-                pager: true,
-                slideWidth: 800,
-                slideMargin: 0,
+{% block title %}메인 페이지{% endblock %}
 
-            });
-        });
-    </script>
-</head>
+<script>
+{% block head_script %}
+{% endblock %}
+</script>
 
-<body>
-    <link rel="stylesheet" href="/style.css">
-    <div class="header">
-        <img src="/dig_width.png" class="header_img">
+<style>
+{% block head_style %}
+{% endblock %}
+</style>
 
 
+{% block content %}
+<div class="slider">
+    <div>
+        <img src="{% static 'digimg1.jpg' %}">
     </div>
-    <br>
-
-    <nav>
-        <ul class="menu">
-            <li>
-                <a href="#">기상 정보</a>
-            </li>
-            <li>
-                <a href="#">발굴 보고서</a>
-            </li>
-            <li>
-                <a href="#">발굴조사 현장 공개 정보</a>
-            </li>
-            <li>
-                <a href="#">현장 감독</a>
-                <ul class="submenu">
-                    <li><a href="#">현장 상황판</a></li>
-                    <li><a href="#">작업 일지</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-    <input type="submit" class="signup_but" value="회원가입">
-    <input type="submit" class="login_but" value="로그인">
-    <br><br><br><br><br><br>
-    <div class="slider">
-        <div>
-            <img src="/digimg1.jpg">
-        </div>
-        <div>
-            <img src="/digimg2.jpg">
-        </div>
-        <div>
-            <img src="/digimg3.jpg">
-        </div>
+    <div>
+        <img src="{% static 'digimg2.jpg' %}">
     </div>
+    <div>
+        <img src="{% static 'digimg3.jpg' %}">
+    </div>
+</div>
+{% endblock %}
 
-    <footer>
-        <div class="inner">
-            <div class="info">
-                <span>서울특별시 서초구 동작대로 132 안석빌딩 9층</span>
-                <span>안전 발굴 지원 DIG</span>
-                <span>admin@dig.com</span>
-            </div>
+<script>
+{% block end_script %}
+$(document).ready(function () {
+    $(".slider").bxSlider({
+        auto: true,
+        speed: 1000,
+        pause: 3000,
+        mode: 'horizontal',
+        autoControls: true,
+        pager: true,
+        slideWidth: 800,
+        slideMargin: 0,
 
-            <p class="copyright">
-                &copy; <span class="this-year"></span> Design by SWEET ROCKET
-            </p>
+    });
+});
+{% endblock %}
+</script>
 
-            <form class=familysites>
-                <select onchange="javascript:window.open(value);" class="family-site">
-                    <option selected="">관련사이트</option>
-                    <option value="https://www.cha.go.kr/main.html">문화재청</option>
-                    <option value="http://kras.or.kr/">한국고고학회</option>
-                    <option value="https://www.heritage.go.kr/main/?v=1679899013235">국가문화유산포털</option>
-                </select>
-            </form>
-            <img src="/DIG_tra.png" width="100" height="100" class="logo" />
-
-        </div>
-    </footer>
-</body>
-
-</html>
+<style>
+{% block end_style %}
+{% endblock %}
+</style>
