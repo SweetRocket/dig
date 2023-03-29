@@ -61,6 +61,8 @@
 
 /* 헤더, 네브바 */
 
+/* 헤더 */
+
 .header {
     width: 100%;
     height: 170px;
@@ -75,16 +77,68 @@
 
 .header_img {
     position: absolute;
-    width: 300px;
-    height: 200px;
     left: 40%;
     right: 50%;
+    width: 270px;
+    height: 170px;
+    padding-top: 20px;
+}
+
+.sign_in_up {
+    position: absolute;
+    top: 100px;
+    right: 1px;
 }
 
 
+.login_but {
+    width: 100px;
+    height: 40px;
+    background-color: #F1C40F;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 15px;
+    border-radius: 10px;
+
+}
+
+.signup_but {
+    width: 100px;
+    height: 40px;
+    background-color: #F1C40F;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 160px;
+    border-radius: 10px;
+}
+
+/* 네브바 */
+
+.navbar {
+    width: 100%;
+    position: absolute;
+
+}
+
+ul .menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #3771AC;
+
+}
+
+.menu {
+    width: 90%;
+    z-index: 30;
+}
 
 li {
     list-style: none;
+    display: block;
 }
 
 a {
@@ -92,18 +146,17 @@ a {
     font-size: 14px;
 }
 
-.menu {
-    width: 80%;
-}
 
 .menu>li {
-    width: 20%;
+    width: 25%;
     /*20*5=100%*/
     float: left;
     text-align: center;
     line-height: 40px;
     background-color: #3771AC;
+
 }
+
 
 .menu a {
     color: #fff;
@@ -121,7 +174,6 @@ a {
     height: 0;
     /*ul의 높이를 안보이게 처리*/
     overflow: hidden;
-    z-index: 100;
 }
 
 .menu>li:hover {
@@ -135,31 +187,6 @@ a {
     transition-duration: 1s;
 }
 
-
-.login_but {
-    width: 100px;
-    height: 40px;
-    background-color: #F1C40F;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    float: right;
-    margin-right: 15px;
-    border-radius: 10px;
-
-}
-
-.signup_but {
-    width: 100px;
-    height: 40px;
-    background-color: #F1C40F;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    float: right;
-    margin-right: 160px;
-    border-radius: 10px;
-}
 
 /************ footer ************/
 footer {
@@ -227,7 +254,7 @@ footer .logo {
     margin-right: 300px;
 }
 
-h2 {
+h4 {
     text-align: center;
 }
 
@@ -236,4 +263,57 @@ h2 {
 * {
     margin: 0 auto;
     box-sizing: border-box;
+}
+
+/*********작업 일지********/
+#date {
+    margin-left: 4%;
+    font-size: 100px;
+    width: 20%;
+    height: 30px;
+    float: left;
+}
+
+#date>form {
+    width: 150px;
+    height: 0px;
+    font-size: 20px;
+}
+
+#fruits {
+    margin: 0 auto;
+    margin-top: 30px;
+    width: 80%;
+    border: 1px solid #444444;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid #444444;
+    padding: 10px;
+}
+
+td>form {
+    width: 200px;
+    text-align: center;
+}
+
+label {
+    cursor: pointer;
+    font-size: 1em;
+}
+
+#chooseFile {
+    visibility: hidden;
+    margin: 0 auto;
+    margin-left: 10%;
+    width: 80%;
+    border: 1px solid #444444;
+    border-collapse: collapse;
+}
+
+.hang {
+    width: 80%;
+    margin-left: 154px;
 }

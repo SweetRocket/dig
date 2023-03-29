@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}메인 페이지{% endblock %}
+
+<script>
+{% block head_script %}
+function addRow() {
+    // table element 찾기
+    const table = document.getElementById('fruits');
+    
+    // 새 행(Row) 추가
+    const newRow = table.insertRow();
+    
+    // 새 행(Row)에 Cell 추가
+    const newCell1 = newRow.insertCell(0);
+    const newCell2 = newRow.insertCell(1);
+    const newCell3 = newRow.insertCell(2);
+    const newCell4 = newRow.insertCell(3);
+    
+    // Cell에 텍스트 추가
+    newCell1.innerText = '';
+    newCell2.innerText = '';
+    newCell3.innerText = '';
+    newCell4.innerText = '';
+}
+{% endblock %}
+</script>
+
+<style>
+{% block head_style %}
+{% endblock %}
+</style>
+
+
+{% block content %}
+<div id="date">
+    <form>
+        <input type="date">
+    </form>
+</div>
+<table id='fruits'>
+    <thead>
+        <tr>
+            <th>유구</th>
+            <th>작업 근로자</th>
+            <th>출토 유물</th>
+            <th>특이사항</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1호 석실</td>
+            <td>
+                <form> <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                    <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                </form>
+            </td>
+            <td>
+                <form method="post" enctype="multipart/form-data">
+                    <div class="button">
+                        <label for="chooseFile">
+                            이미지 추가+
+                        </label>
+                    </div>
+                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
+                </form>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>2호 석실</td>
+            <td>
+                <form> <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                    <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                </form>
+            </td>
+            <td>
+                <form method="post" enctype="multipart/form-data">
+                    <div class="button">
+                        <label for="chooseFile">
+                            이미지 추가+
+                        </label>
+                    </div>
+                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
+                </form>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>3호 석실</td>
+            <td>
+                <form> <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                    <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                </form>
+            </td>
+
+            <td>
+                <form method="post" enctype="multipart/form-data">
+                    <div class="button">
+                        <label for="chooseFile">
+                            이미지 추가+
+                        </label>
+                    </div>
+                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
+                </form>
+            </td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>1호 주거지</td>
+            <td>
+                <form> <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                    <select name="worker">
+                        <option>강명지</option>
+                        <option> 강연주 </option>
+                        <option> 김원중 </option>
+                        <option> 나유연 </option>
+                        <option> 이원준 </option>
+                    </select>
+                </form>
+            </td>
+
+            <td>
+                <form method="post" enctype="multipart/form-data">
+                    <div class="button">
+                        <label for="chooseFile">
+                            이미지 추가+
+                        </label>
+                    </div>
+                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
+                </form>
+            </td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<input class="hang" type='button' value='행추가' onclick='addRow()' />
+
+{% endblock %}
+
+<script>
+{% block end_script %}
+{% endblock %}
+</script>
+
+<style>
+{% block end_style %}
+{% endblock %}
+</style>

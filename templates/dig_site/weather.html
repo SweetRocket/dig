@@ -1,4 +1,8 @@
+{% extends 'base.html' %}
 {% load static %}
+
+{% block title %}기상 정보{% endblock %}
+{% block content %}
 <!DOCTYPE html>
 <html>
 
@@ -10,28 +14,14 @@
     <meta name="keywords" content="keywords" />
     <link rel="stylesheet" href="{% static 'styles.css' %}" type="text/css" />
 
-
-    <style>
-
-
-
-    </style>
 </head>
 
 <body>
-    <div class="weatherwidget">
-        <!-- Weather widget by https://meteodays.com -->
-        <a id="ms-informer-link-4969598617673cda4578f2dff5f64718" class="ms-informer-link"
-            href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
-        <script class="ms-informer-script"
-            src="https://meteodays.com/ko/informer/script/4969598617673cda4578f2dff5f64718"></script>
-        <!-- End -->
-    </div>
 
     <div class="flex-container">
 
         <div class="weathertoday">
-            <h2>오늘의 날씨</h2>
+            <h4>오늘의 날씨</h4>
             <!-- Weather widget by https://meteodays.com -->
             <a id="ms-informer-link-fadec11983242b6cd2011189806a8e60" class="ms-informer-link"
                 href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
@@ -41,7 +31,7 @@
         </div>
 
         <div class="weatherforecast">
-            <h2>일기 예보&nbsp&nbsp&nbsp&nbsp&nbsp</h2>
+            <h4>일기 예보&nbsp&nbsp&nbsp&nbsp&nbsp</h4>
             <!-- Weather widget by https://meteodays.com -->
             <a id="ms-informer-link-78597bb2fab1cda8d78aa09db06d2c23" class="ms-informer-link"
                 href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
@@ -55,3 +45,4 @@
 </body>
 
 </html>
+{% endblock %}
