@@ -59,7 +59,6 @@ class Singleton(type):
         return cls.instance
 
 
-
 def fire_and_forget(func):
     """
     fire_and_forget decorator
@@ -67,6 +66,7 @@ def fire_and_forget(func):
     def wrapper(*args, **kwargs):
         Thread(target=func, args=args, kwargs=kwargs).start()
     return wrapper
+
 
 class Models(metaclass=Singleton):
     """
@@ -80,17 +80,17 @@ class Models(metaclass=Singleton):
         # 연산 device 설정
         gpu = 0
         torch_device = f'cuda:{gpu}' if torch.cuda.is_available() else 'cpu'
-        
+
         if torch.cuda.is_available():
             torch.cuda.set_device(gpu)
-        
+
         self.loaded = False
         self.device = torch.device(torch_device)
 
         self.equip_model_path = equip_model_path
         self.handmotion_model_path = handmotion_model_path
         self.confidence = confidence
-        
+
         self.is_loading = False
 
     # 모델 lazy load
@@ -99,7 +99,7 @@ class Models(metaclass=Singleton):
         if self.is_loading or self.loaded:
             return
         self.is_loading = True
-        
+
         # torch hub를 사용한 model 로드
         self.equip_model = torch.hub.load(
             'ultralytics/yolov5', 'custom', path=self.equip_model_path)
@@ -122,8 +122,8 @@ class Models(metaclass=Singleton):
         self.loaded = True
         self.is_loading = False
 
-
     # 이미지에서 Object Detection을 수행
+
     def detect(self, img, mhi_img, size=640):
         # 모델이 로딩되지 않았다면 로딩
         if not self.loaded:
@@ -264,7 +264,7 @@ class Streamer():
                 def queue_put():
                     output_queue.put_nowait(
                         (self.device_id, self.prepare_data()))
-                
+
                 queue_put()
             except Exception as e:
                 continue
