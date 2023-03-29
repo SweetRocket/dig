@@ -1,21 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% load static %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>발굴조사 현장 공개</title>
+{% block title %}발굴조사 현장 공개{% endblock %}
 
-</head>
+<style>
+    {% block head_style %}
+    .ex_info{
+        margin:0 auto;
+        text-align: center;
+    }
+    {% endblock %}
+    </style>
 
+{% block content %}
 <body>
-    <h1>발굴조사 현장 공개</h1>
-    <div>
-        <iframe title="발굴조사 현장공개 아이프레임" id="hp_grndIframe" style="width:100%;max-width:100%;border:0;min-height:800px"
+    <div class="ex_info">
+    <h3 style="text-align: center;">발굴조사 현장 공개</h3>
+        <iframe title="발굴조사 현장공개 아이프레임" id="hp_grndIframe" style="width:80%;border:0;min-height:800px"
             src="https://www.e-minwon.go.kr:8443/hmop/Hp_GrndfieldopenList.do">
         </iframe>
     </div>
 </body>
-
-</html>
+{% endblock %}

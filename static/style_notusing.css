@@ -1,0 +1,260 @@
+* {
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* 회원가입 */
+.wrapper {
+  background-color: #f2f2f2;
+  width: 600px;
+  height: 430px;
+}
+
+.signup_img {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+
+.empname_box {
+  outline: none;
+  width: 20%;
+}
+
+.sibu {
+  height: 40px;
+  width: 300px;
+  background-color: #3771ac;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.wrapper {
+  text-decoration: none;
+  color: black;
+  text-align: center;
+}
+
+.box {
+  width: 50%;
+  height: 30px;
+  cursor: auto;
+}
+
+.empname_text {
+  margin-right: 240px;
+  font-weight: bold;
+}
+
+.username_text {
+  margin-right: 255px;
+  font-weight: bold;
+}
+
+.password_text{
+  margin-right: 240px;
+  font-weight: bold;
+}
+
+.password1_text {
+  margin-right: 240px;
+  font-weight: bold;
+}
+
+.password2_text {
+  margin-right: 200px;
+  font-weight: bold;
+}
+
+/* 헤더, 네브바 */
+
+.header_img {
+  display: block;
+  width: 15%;
+  height: 15%;
+  float: center;
+}
+
+li {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.menu {
+  width: 80%;
+}
+
+.menu > li {
+  width: 20%; /*20*5=100%*/
+  float: left;
+  text-align: center;
+  line-height: 40px;
+  background-color: #3771ac;
+}
+
+.menu a {
+  color: #fff;
+  font-weight: bold;
+}
+
+.submenu > li {
+  line-height: 50px;
+  background-color: #f1c40f;
+  text-align: center;
+  margin-right: 40px;
+}
+
+.submenu {
+  height: 0; /*ul의 높이를 안보이게 처리*/
+  overflow: hidden;
+  z-index: 200;
+}
+
+.menu > li:hover {
+  background-color: #f1c40f;
+  transition-duration: 0.2s;
+}
+
+.menu > li:hover .submenu {
+  height: 100px; /*서브메뉴 li한개의 높이 50*5*/
+  transition-duration: 1s;
+}
+
+.login_but {
+  width: 100px;
+  height: 40px;
+  background-color: #f1c40f;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  float: right;
+  margin-right: 15px;
+  border-radius: 10px;
+}
+
+.signup_but {
+  width: 100px;
+  height: 40px;
+  background-color: #f1c40f;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  float: right;
+  margin-right: 160px;
+  border-radius: 10px;
+}
+
+.logout_but {
+  width: 180px;
+  height: 40px;
+  background-color: #f1c40f;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 30px;
+
+  border-radius: 10px;
+}
+
+/************ footer ************/
+footer {
+  background-color: lightgray;
+  border-top: 1px solid #333;
+  width: 100%;
+  margin-top: 50px;
+  height: 230px;
+}
+footer .inner {
+  padding-top: 0;
+}
+footer .info {
+  margin-top: 20px;
+  text-align: center;
+}
+footer .info span {
+  margin-right: 20px;
+  color: black;
+  font-size: 12px;
+}
+footer .info span:last-child {
+  margin-right: 0;
+}
+footer .copyright {
+  color: black;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 12px;
+}
+footer .logo {
+  display: block;
+  margin: auto;
+}
+
+.familysites {
+  text-align: center;
+}
+
+/*********발굴 현장 공개 정보********/
+#hp_grndIframe {
+  margin-top: 50px;
+  width: 75%;
+  border: 0;
+  min-height: 800px;
+  margin-left: 200px;
+}
+
+
+
+/*********작업 일지********/
+#date {
+  margin-left: 4%;
+  font-size: 100px;
+  width: 20%;
+  height: 30px;
+  float: left;
+}
+#date > form {
+  width: 150px;
+  height: 0px;
+  font-size: 20px;
+}
+
+#fruits {
+  margin: 0 auto;
+  margin-top: 30px;
+  width: 80%;
+  border: 1px solid #444444;
+  border-collapse: collapse;
+}
+
+th,td {
+  border: 1px solid #444444;
+  padding: 10px;
+}
+
+td > form {
+  width: 200px;
+  text-align: center;
+}
+
+label {
+  cursor: pointer;
+  font-size: 1em;
+}
+#chooseFile {
+  visibility: hidden;
+  margin: 0 auto;
+  margin-left: 10%;
+  width: 80%;
+  border: 1px solid #444444;
+  border-collapse: collapse;
+}
+
+.hang {
+  width: 80%;
+  margin-left: 154px;
+}
