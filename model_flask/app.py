@@ -93,8 +93,11 @@ class Models(metaclass=Singleton):
 
         self.is_loading = False
 
-    # 모델 lazy load
     def load(self):
+        """
+        모델 load
+        """
+
         # 로딩중이거나 이미 로딩 된 경우 그냥 return
         if self.is_loading or self.loaded:
             return
@@ -122,9 +125,11 @@ class Models(metaclass=Singleton):
         self.loaded = True
         self.is_loading = False
 
-    # 이미지에서 Object Detection을 수행
-
     def detect(self, img, mhi_img, size=640):
+        """
+        이미지에서 Object Detection을 수행
+        """
+
         # 모델이 로딩되지 않았다면 로딩
         if not self.loaded:
             self.load()
@@ -211,6 +216,7 @@ class Streamer():
         if not self.models.loaded:
             self.models.load()
 
+        # 디바이스 미설정시, 디바이스 설정
         if self.device is None:
             if platform.system() == 'Windows':
                 self.device = cv2.VideoCapture(self.device_id, cv2.CAP_DSHOW)
@@ -362,6 +368,9 @@ class Streamer():
 
 
 def clear_output_queue():
+    """
+    Output Queue를 비움
+    """
     with output_queue.mutex:
         output_queue.queue.clear()
 
@@ -394,12 +403,15 @@ def json_feed(ws: WSServer, device_id):
     # streamer 불러옴
     streamer = get_streamer(device_id)
 
+    # streamer가 시작되지 않았으면 시작
     if streamer.started is False and not streamer.run_trigger and len(client_list.get(device_id, [])) == 0:
         streamer.run()
 
+    # client_list를 초기화
     if client_list.get(device_id, None) is None:
         client_list[device_id] = []
 
+    # client_list에 추가
     client_list[device_id].append(ws)
     try:
         while True:
@@ -469,7 +481,10 @@ def send_socket_message():
 
 # Flask 실행
 if __name__ == '__main__':
+    # WebSocket Thread
     ws = Thread(target=send_socket_message)
     ws.daemon = True
     ws.start()
+
+    # Flask Server
     app.run(host='0.0.0.0', threaded=True)  # debug=True
