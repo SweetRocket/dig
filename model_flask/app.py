@@ -267,7 +267,6 @@ class Streamer():
                 
                 queue_put()
             except Exception as e:
-                print(e)
                 continue
 
     def prepare_data(self):
@@ -431,11 +430,11 @@ def send_socket_message():
 
     while True:
         # GIL hang 방지
-        time.sleep(0.001)
+        time.sleep(0.01)
 
         try:
             # ouput_queue에서 데이터를 가져옴
-            queue = output_queue.get(block=True, timeout=0.1)
+            queue = output_queue.get_nowait()
 
             # output_queue 비우기
             clear_output_queue()
@@ -444,7 +443,7 @@ def send_socket_message():
             key, item = queue
 
             # 클라이언트 리스트 로드
-            clients = client_list.get(key, [])
+            clients = client_list.get(key, []).copy()
         except Exception as e:
             # 오류 발생시 재시도
             continue
@@ -471,6 +470,6 @@ def send_socket_message():
 # Flask 실행
 if __name__ == '__main__':
     ws = Thread(target=send_socket_message)
-    ws.daemon = False
+    ws.daemon = True
     ws.start()
     app.run(host='0.0.0.0', threaded=True)  # debug=True

@@ -19,6 +19,9 @@
     <p>Server Status: <span id="server_status">Not connected</span></p>
     <p>Detected: <span id="detected"></span></p>
     <p>Error: <span id="error">null</span></p>
+    <div id="logbox">
+      
+    </div>
     <script>
       function getId() {
         input = document.querySelector("input");
@@ -95,6 +98,8 @@
             } else {
               document.getElementById("error").innerHTML = "null";
             }
+
+            log_from_detection(detected);
           };
         }
       }
@@ -111,6 +116,30 @@
         connect();
         document.getElementById("client_status").innerHTML = "Reconnecting...";
         document.getElementById("server_status").innerHTML = "Waiting for response...";
+      }
+
+      function log_from_detection(detections) {
+        const logbox = document.getElementById("logbox");
+
+        detections.forEach((detection) => {
+          if (!(detection['cls_name'].includes('NO') || detection['model'] == 'handmotion')) {
+            return;
+          }
+
+          if (detection['confidence'] < 0.8) {
+            return;
+          }
+
+          const now = new Date().toLocaleTimeString();
+
+          const p = document.createElement("p");
+          p.innerHTML = `[${now}] ${detection['model']}: ${detection['cls_name']} - ${detection['confidence']}`
+          logbox.appendChild(p);
+        });
+
+        if (logbox.childElementCount > 10) {
+          logbox.removeChild(logbox.firstChild);
+        }
       }
     </script>
   </body>
