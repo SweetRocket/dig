@@ -1,0 +1,63 @@
+*{
+    padding: 0; 
+    margin: 0 auto;
+    border: none;
+}
+
+body{
+    margin-top: 50px;
+}
+#date{
+    margin-left: 4%;
+    font-size: 100px;
+    width: 20%;
+    height : 30px;
+    float: left;
+}
+#date > form {
+    width:150px;
+    height:0px;
+    font-size:20px;
+  }
+#name{
+    padding-left: 45%;
+    width: 55%;
+    height : 30px;
+    font-family: 'Roboto', sans-serif;
+}
+
+table {
+    margin : 0 auto;
+    margin-top : 30px;
+    width: 80%;
+    border: 1px solid #444444;
+    border-collapse: collapse;
+  }
+  th, td {
+    border: 1px solid #444444;
+    padding: 10px;
+  }
+
+td > form{
+    width: 200px;
+}
+
+  .button {
+    text-align: left;
+    display: flex;
+}
+label {
+    cursor: pointer;
+    font-size: 1em;
+}
+#chooseFile {
+    visibility: hidden;
+}
+
+input{
+        margin : 0 auto;
+        margin-left : 10%;
+        width: 80%;
+        border: 1px solid #444444;
+        border-collapse: collapse;
+      }
