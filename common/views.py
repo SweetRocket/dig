@@ -12,9 +12,9 @@ def login(request):
             auth.login(request, user)
             return redirect('http://127.0.0.1:8000/')
         else:
-            return render(request, 'dig_site/Login.html', {'error':'username or password is incorrect'})
+            return render(request, 'common/Login.html', {'error':'username or password is incorrect'})
     else:
-        return render(request, 'dig_site/Login.html')
+        return render(request, 'common/Login.html')
 
 def signup(request):
     if request.method == "POST":
@@ -22,7 +22,7 @@ def signup(request):
             user=User.objects.create_user(request.POST['username'], password=request.POST['password1'])
             auth.login(request, user)
             return redirect('main')
-    return render(request, 'dig_site/signup.html')
+    return render(request, 'common/signup.html')
 
 def logout(request):
     if request.user.is_authenticated:
