@@ -7,7 +7,7 @@ from django.core.files.base import ContentFile
 
 
 from common.models import Image
-from dig_site.models import SiteInfo, WorkHistory
+from dig_site.models import SiteInfo, SiteJoin, WorkHistory
 
 from ..utils import work_to_dict
 from django.contrib.auth.models import User
@@ -97,3 +97,31 @@ def update(request, id):
     })
     
 
+@requires_csrf_token
+#@login_required
+def workers(request):
+    if (w := request.GET.get('site', None)) is None:
+        return JsonResponse({
+            'status': 'error',
+            'error': 'no site id provided'
+        })
+
+    try:
+        site = SiteInfo.objects.get(pk=w)
+    except:
+        return JsonResponse({
+            'status': 'error',
+            'error': 'invalid site id'
+        })
+    
+    site_join = SiteJoin.objects.filter(site=site).select_related('user').all()
+        
+    workers = [{
+        'id': sj.user.pk,
+        'name': sj.user.get_full_name()
+    } for sj in site_join ]
+    
+    return JsonResponse({
+        'status': 'ok',
+        'result': workers
+    })
