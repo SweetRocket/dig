@@ -23,8 +23,7 @@ def work_daily(request):
     site = SiteInfo.objects.all()
     
     data = {
-        'site': [ { 'id': s.pk, 'name': s.name } for s in site ],
-        'workers': [ { 'id': w.pk, 'name': w.last_name + w.first_name } for w in User.objects.all() ]
+        'site': [ { 'id': s.pk, 'name': s.name } for s in site ]
     }
-    
+
     return render(request, 'dig_site/work_daily.html', data)
