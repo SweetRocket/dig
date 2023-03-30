@@ -8,7 +8,10 @@ weather_urlpatterns = [
 ];
 
 work_urlpatterns = [
-    path('<date>', views.work.load, name='load'),
+    path('load', views.work.load, name='load'),
+    path('new/<date>/<int:site>', views.work.new, name='new'),
+    path('update/<int:id>', views.work.update, name='update'),
+    
 ];
 
 urlpatterns = [
