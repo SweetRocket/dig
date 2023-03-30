@@ -1,12 +1,13 @@
-<!-- {% load bootstrap4 %}
-{% block content %} -->
-<!DOCTYPE html>
-<html>
+{% load static %}
+
+{% block content %}
+
     <head>
+        <link rel="stylesheet" href="{% static 'styles.css' %}">
     </head>
     <body>
-      <link rel="stylesheet" href="style.css">
-      <img src="dig.png" class="signup_img" />
+
+    <a href="{% url 'dig_site:index' %}"><img src="{% static 'dig.png' %}" class="signup_img" /></a>
     
         <div class="wrapper">
             <form method="POST">
