@@ -16,7 +16,6 @@ def hourly(request):
     ret = {}
     
     for i in items:
-        print(i)
         date = i['fcstDate'] + 'T' + i['fcstTime']
         if ret.get(date, None) is None:
             ret[date] = {}

@@ -285,7 +285,7 @@ h4 {
 }
 
 /*********작업 일지********/
-#date {
+#work-info {
     margin-left: 4%;
     font-size: 100px;
     width: 20%;
@@ -293,17 +293,13 @@ h4 {
     float: left;
 }
 
-#date>form {
+#work-info>form {
     width: 150px;
     height: 0px;
     font-size: 20px;
 }
 
-<<<<<<< HEAD
-#fruits {
-=======
 #work {
->>>>>>> 4f0f13fe521c8364a52076fcc05514cfb5ed69c6
     margin: 0 auto;
     margin-top: 30px;
     width: 80%;
