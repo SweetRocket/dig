@@ -46,4 +46,4 @@ def request_hourly(nx, ny):
         return None
 
     cache.set(cache_key, json)
-    return 
+    return json
