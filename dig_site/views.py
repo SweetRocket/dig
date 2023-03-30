@@ -10,8 +10,7 @@ def index(request):
     return render(request, 'dig_site/main.html')
 
 
-def login(request):
-    return render(request, 'dig_site/login.html')
+
 
 def signup(request):
     return render(request, 'dig_site/signup.html')

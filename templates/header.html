@@ -1,13 +1,11 @@
 {% load static %}
-<div class="header">
+<div class="headerr">
 
     <div class="weatherwidget">
-        <!-- Weather widget by https://meteodays.com -->
-        <a id="ms-informer-link-4969598617673cda4578f2dff5f64718" class="ms-informer-link"
-            href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
-        <script class="ms-informer-script"
-            src="https://meteodays.com/ko/informer/script/4969598617673cda4578f2dff5f64718"></script>
-        <!-- End -->
+<!-- Weather widget by https://meteodays.com -->
+<a id="ms-informer-link-da3fa8376839d8f4ed2ec6b8c39055d3" class="ms-informer-link" href="https://meteodays.com/ko/weather/overview/seoul">서울날씨</a>
+<script class="ms-informer-script" src="https://meteodays.com/ko/informer/script/da3fa8376839d8f4ed2ec6b8c39055d3"></script>
+<!-- End -->
     </div>
 
     <div class="logo">
@@ -16,9 +14,9 @@
 
     <div class="sign_in_up">
 
-        <a href="{% url 'dig_site:login' %}"><input type="submit" class="login_but" value="로그인"></a>
+        <a href="{% url 'common:login' %}"><input type="submit" class="login_but" value="로그인"></a>
     
-        <a href="{% url 'dig_site:signup' %}"><input type="submit" class="signup_but" value="회원가입"></a>
+        <a href="{% url 'common:signup' %}"><input type="submit" class="signup_but" value="회원가입"></a>
     </div>
 </div>
 <br>
