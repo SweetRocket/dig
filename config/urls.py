@@ -22,6 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('', include('dig_site.urls')),
     path('common/', include('common.urls')),
-    #path('login/', login_view, name='login'),
     path('api/', include('api.urls')),
 ]
