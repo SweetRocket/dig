@@ -4,6 +4,13 @@
     box-sizing: border-box;
 }
 
+body {
+    background: #F0F0F0;
+   /* background-image: url("background.jpg"); */
+ 
+
+}
+
 /* 회원가입 */
 .wrapper {
     background-color: #f2f2f2;
@@ -91,7 +98,7 @@
     left: 40%;
     right: 50%;
     width: 270px;
-    height: 170px;
+    height: 200px;
     padding-top: 20px;
 }
 
@@ -109,7 +116,7 @@
     border: none;
     font-weight: bold;
     cursor: pointer;
-    margin-right: 15px;
+
     border-radius: 10px;
 
 }
@@ -121,7 +128,7 @@
     border: none;
     font-weight: bold;
     cursor: pointer;
-    margin-right: 160px;
+    margin-right: 80px;
     border-radius: 10px;
 }
 
@@ -178,7 +185,7 @@ a {
     float: left;
     text-align: center;
     line-height: 40px;
-    background-color: #3771AC;
+    background-color: #21325E;
 
 }
 
