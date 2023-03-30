@@ -12,11 +12,11 @@
         <div class="wrapper">
             <form method="POST" action={% url 'common:signup' %}>
                 {% csrf_token %}
-                {% comment %} {% include "form.errors.html" %}
+                {% include "form_errors.html" %}
 
                 {% if error %}
                 <p>{{error}}</p>
-                {% endif %} {% endcomment %}
+                {% endif %}
                 <br>
                 <label for='name' class='name_text'>이름</label><br>
                 <input name='name' type='text' class='box' value="{{ form.name.value|default_if_none:'' }}">
