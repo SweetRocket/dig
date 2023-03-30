@@ -22,4 +22,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('', include('dig_site.urls')),
     path('', include('common.urls')),
+    path('api/', include('api.urls')),
 ]

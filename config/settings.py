@@ -37,6 +37,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "common.apps.CommonConfig",
+    "dig_site.apps.DigSiteConfig",
+    "api.apps.ApiConfig",
+    "phonenumber_field",
 ]
 
 MIDDLEWARE = [
