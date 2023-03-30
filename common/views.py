@@ -15,3 +15,16 @@ def login(request):
             return render(request, 'dig_site/Login.html', {'error':'username or password is incorrect'})
     else:
         return render(request, 'dig_site/Login.html')
+
+def signup(request):
+    if request.method == "POST":
+        if request.POST['password1'] == request.POST['password2']:
+            user=User.objects.create_user(request.POST['username'], password=request.POST['password1'])
+            auth.login(request, user)
+            return redirect('main')
+    return render(request, 'dig_site/signup.html')
+
+def logout(request):
+    if request.user.is_authenticated:
+        auth.logout(request)
+    return redirect('main')
