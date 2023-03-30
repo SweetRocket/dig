@@ -1,192 +1,222 @@
-{% extends 'base.html' %}
-{% load static %}
-
+{% extends 'base.html' %} 
+{% load static %} 
 {% block title %}메인 페이지{% endblock %}
 
 <script>
-{% block head_script %}
-function addRow() {
-    // table element 찾기
-    const table = document.getElementById('fruits');
-    
-    // 새 행(Row) 추가
-    const newRow = table.insertRow();
-    
-    // 새 행(Row)에 Cell 추가
-    const newCell1 = newRow.insertCell(0);
-    const newCell2 = newRow.insertCell(1);
-    const newCell3 = newRow.insertCell(2);
-    const newCell4 = newRow.insertCell(3);
-    
-    // Cell에 텍스트 추가
-    newCell1.innerText = '';
-    newCell2.innerText = '';
-    newCell3.innerText = '';
-    newCell4.innerText = '';
-}
-{% endblock %}
+  {% block head_script %}
+  {% endblock %}
 </script>
 
 <style>
-{% block head_style %}
-{% endblock %}
+  {% block head_style %}
+  {% endblock %}
 </style>
 
-
 {% block content %}
-<div id="date">
-    <form>
-        <input type="date">
-    </form>
+<div id="work-date">
+  <form onChange="loadData(this)">
+    <input type="date" />
+  </form>
 </div>
-<table id='fruits'>
-    <thead>
-        <tr>
-            <th>유구</th>
-            <th>작업 근로자</th>
-            <th>출토 유물</th>
-            <th>특이사항</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>1호 석실</td>
-            <td>
-                <form> <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                    <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                </form>
-            </td>
-            <td>
-                <form method="post" enctype="multipart/form-data">
-                    <div class="button">
-                        <label for="chooseFile">
-                            이미지 추가+
-                        </label>
-                    </div>
-                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
-                </form>
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>2호 석실</td>
-            <td>
-                <form> <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                    <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                </form>
-            </td>
-            <td>
-                <form method="post" enctype="multipart/form-data">
-                    <div class="button">
-                        <label for="chooseFile">
-                            이미지 추가+
-                        </label>
-                    </div>
-                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
-                </form>
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>3호 석실</td>
-            <td>
-                <form> <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                    <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                </form>
-            </td>
-
-            <td>
-                <form method="post" enctype="multipart/form-data">
-                    <div class="button">
-                        <label for="chooseFile">
-                            이미지 추가+
-                        </label>
-                    </div>
-                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
-                </form>
-            </td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>1호 주거지</td>
-            <td>
-                <form> <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                    <select name="worker">
-                        <option>강명지</option>
-                        <option> 강연주 </option>
-                        <option> 김원중 </option>
-                        <option> 나유연 </option>
-                        <option> 이원준 </option>
-                    </select>
-                </form>
-            </td>
-
-            <td>
-                <form method="post" enctype="multipart/form-data">
-                    <div class="button">
-                        <label for="chooseFile">
-                            이미지 추가+
-                        </label>
-                    </div>
-                    <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="loadFile(this)">
-                </form>
-            </td>
-            <td></td>
-        </tr>
-    </tbody>
+<br />
+<table id="work">
+  <thead>
+    <tr>
+      <th>유구</th>
+      <th>작업 근로자</th>
+      <th>출토 유물</th>
+      <th>특이사항</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
 </table>
-<input class="hang" type='button' value='행추가' onclick='addRow()' />
+<input class="hang" type="button" value="행추가" onclick="addNewRow()" />
 
+{% csrf_token %}
 {% endblock %}
 
 <script>
-{% block end_script %}
-{% endblock %}
+  {% block end_script %}
+  // {% comment %} 유저 목록 django {% endcomment %}
+  const workerList = [
+    {
+      name: '선택안함',
+      id: '-1',
+    }{% for worker in workers %}
+    {
+        name: '{{ worker.name }}',
+        id: '{{ worker.id }}'
+    },{% endfor %}];
+
+  const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+  // {% comment %} 유저 목록 생성 {% endcomment %}
+  function workerOptions(selectedList) {
+      return workerList
+          // {% comment %} option으로 변환 {% endcomment %}
+          .map(worker => `<option id="${worker.id}">${worker.name}</option>`)
+          // {% comment %} 선택된 유저를 selected로 설정 {% endcomment %}
+          .map(option => {
+              // {% comment %} 만약 선택된 유저가 있다면 {% endcomment %}
+              if (_.includes(selectedList, parseInt(option.split('"')[1], 10))) {
+                  return option.replace('">', '" selected>');
+              }
+
+              return option;
+          })
+          .join('')
+  }
+
+  // {% comment %} 새 작업자 선택 추가 {% endcomment %}
+  function buildWorkerSelect(index, selectedWorkers = []) {
+    return `
+      <select title="worker-${index}" name="worker-${index}">
+        ${workerOptions(selectedWorkers)}
+      </select>
+    `;
+  }
+
+  // {% comment %} 테이블 행 생성 {% endcomment %}
+  function buildItemTag(id, name, images, note, selectedWorker) {
+      return `
+      <tr data-id="${id}">
+          <td>
+              <form onchange="updateChange(${id})">
+                  <input type="text" name="name" value="${name}">
+              </form>
+          </td>
+          <td>
+              <form name="worker-list" onchange="updateWorker(this);updateChange(${id})">
+                  ${selectedWorker
+                    // {% comment %} 선택된 유저가 없는 경우 {% endcomment %}
+                    .filter(worker => worker !== -1)
+                    // {% comment %} 선택된 유저를 select로 변환 {% endcomment %}
+                    .map((worker, index) => buildWorkerSelect(index, worker)).join('')}
+                  ${buildWorkerSelect(selectedWorker.length)}
+              </form>
+          </td>
+          <td>
+              <form onchange="updateChange(${id})">
+                  <div class="work_images">
+                      ${images.map(image => `<img src="${image}" alt="image" width="100" height="100">`).join('')}
+                  </div>
+                  <div class="button">
+                      <label for="chooseFile">
+                          이미지 추가+
+                      </label>
+                  </div>
+                  <input type="file" id="chooseFile" name="chooseFile" accept="image/*" {% comment %} onchange="loadFile(this)" {% endcomment %} >
+              </form>
+          </td>
+          <td>
+              <form onchange="updateChange(${id})">
+                  <input type="text" name="note" value="${note}">
+          </td>
+      </tr>
+      `;
+  }
+
+  // {% comment %} 작업자 선택시 새로운 작업자 선택 추가 {% endcomment %}
+  function updateWorker(elem) {
+    elem.innerHTML += buildWorkerSelect(elem.querySelectorAll('select').length);
+  }
+
+  // {% comment %} 데이터 변경 시 서버에 전송 {% endcomment %}
+  function updateChange(id) {
+      const elem = document.querySelector(`tr[data-id="${id}"]`);
+
+      const _name = elem.querySelector('input[name="name"]').value;
+      const _note = elem.querySelector('input[name="note"]').value;
+      const _image = elem.querySelector('input[name="chooseFile"]').value;
+      const _workers = [...elem.querySelectorAll('select[name^="worker-"]')]
+                          .map(worker => worker.value);
+  
+      // Check data is not changed after a second, then send to server
+      setTimeout(
+          () => {
+              const name = elem.querySelector('input[name="name"]').value;
+              const note = elem.querySelector('input[name="note"]').value;
+              const image = elem.querySelector('input[name="chooseFile"]').value;
+              const workers = [...elem.querySelectorAll('select[name^="worker-"]')]
+                                  .map(worker => worker.value);
+
+              if (name === _name && _.isEqual(workers, _workers) && note === _note && image === _image) {
+                  console.log('send to server', id, name, workers, note, image);
+
+                  const data = {
+                      name,
+                      workers,
+                      note,
+                      image,
+                  }
+
+                  fetch(`/api/work/update/${id}`, {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRFToken': csrf,
+                      },
+                      mode: 'same-origin',
+                      body: JSON.stringify(data),
+                  }).catch(err => console.log(err)).then(res => res.json()).then(data => {
+                      document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.name, data.images, data.note, data.workers);
+                  })
+              }
+          },
+          1000
+      )
+  }
+
+  // {% comment %} 페이지 데이터 로드 {% endcomment %}
+  function loadData(elem) {
+      const date = elem.querySelector('input[type="date"]').value;
+
+      fetch(`/api/work/${date}`, {
+          headers:{
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrf,
+          },
+          mode: 'same-origin',
+      }).catch(err => console.log(err)).then(res => res.json()).then(data => {
+          if (data?.status !== 'ok') {
+            console.log(data);
+            return;
+          }
+
+          const table = document.querySelector('#work tbody');
+          table.innerHTML = data.result.map(item => buildItemTag(item.id, item.name, item.images, item.note, item.workers)).join('');
+      })
+  }
+
+  // {% comment %} 새로운 행 추가 {% endcomment %}
+  function addNewRow() {
+      const table = document.querySelector('#work tbody');
+
+      fetch(`/api/work/new`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrf,
+          },
+          mode: 'same-origin',
+          body: JSON.stringify({
+              date: document.querySelector('#work-date input[type="date"]').value,
+          }),
+      }).catch(err => console.log(err)).then(res => res.json()).then(data => {
+          table.innerHTML += buildItemTag(data.id, data.name, data.images, data.note, data.workers);
+      })
+  }
+
+  // {% comment %} 페이지 로드시 실행 {% endcomment %}
+  (() => {
+    document.querySelector('#work-date input[type="date"]').valueAsDate = new Date();
+
+    loadData(document.querySelector('#work-date'));
+  })();
+  {% endblock %}
 </script>
 
 <style>
-{% block end_style %}
-{% endblock %}
+  {% block end_style %}
+  {% endblock %}
 </style>
