@@ -1,5 +1,7 @@
 from django.shortcuts import render
 
+from .models import SiteInfo
+from django.contrib.auth.models import User
 # Create your views here.
 
 
@@ -23,4 +25,11 @@ def report(request):
     return render(request, 'dig_site/report.html')
 
 def work_daily(request):
-    return render(request, 'dig_site/work_daily.html')
+    site = SiteInfo.objects.all()
+    
+    data = {
+        'site': [ { 'id': s.pk, 'name': s.name } for s in site ],
+        'workers': [ { 'id': w.pk, 'name': w.last_name + w.first_name } for w in User.objects.all() ]
+    }
+    
+    return render(request, 'dig_site/work_daily.html', data)

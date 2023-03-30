@@ -62,6 +62,12 @@ class Log(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+# d이미지
+class Image(models.Model):
+    # 이미지 파일
+    image = models.ImageField(upload_to='images/')
+
+
 # 영상 기기
 class VideoEquipment(models.Model):
     # 영상 기기 주소
