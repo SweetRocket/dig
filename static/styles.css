@@ -15,7 +15,7 @@ body {
 .wrapper {
     background-color: #f2f2f2;
     width: 600px;
-    height: 430px;
+    height: 500px;
 }
 
 .signup_img {
@@ -51,7 +51,12 @@ body {
     cursor: auto;
 }
 
-.empname_text {
+.name_text{
+    margin-right: 265px;
+    font-weight: bold;
+}
+
+.emp_id_text {
     margin-right: 240px;
     font-weight: bold;
 }
@@ -75,7 +80,7 @@ body {
 
 /* 헤더: 날씨 위젯, 로고 이미지, 로그인, 회원가입 버튼 */
 
-.header {
+.headerr {
     width: 100%;
     height: 170px;
     position: static;
@@ -84,7 +89,8 @@ body {
 .weatherwidget {
     position: absolute;
     top: 20px;
-    left: 200px;
+    left: 150px;
+    width: 200px;
 }
 
 .header_img {
@@ -216,8 +222,8 @@ a {
 
 /************ footer ************/
 footer {
-    background-color: lightgray;
-    border-top: 1px solid #333;
+    /* background-color: lightgray; */
+    border-top: 1px solid lightgray;
     width: 100%;
     margin-top: 50px;
     height: 230px;
@@ -314,13 +320,13 @@ h4 {
     border-collapse: collapse;
 }
 
-th,
+.tth,
 td {
     border: 1px solid #444444;
     padding: 10px;
 }
 
-td>form {
+.ttd>form {
     width: 200px;
     text-align: center;
 }
