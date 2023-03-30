@@ -1,0 +1,38 @@
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Login</title>
+        <link rel="stylesheet" href="{% static 'styles.css' %}" />
+    </head>
+    <body>
+        <a href="{% url 'dig_site:index' %}"><img src="{% static 'dig.png' %}" class="signup_img" /></a>
+    <div class="wrapper">
+        <form method="post" action="{% url 'common:login' %}" id="login-form"
+        style="padding-top: 75px;">
+        {% csrf_token %}
+        {% include "form_errors.html" %}
+
+            <br>
+            <span class="username_text">아이디</span><br>
+            <input name="username" type="text" class="box" value="{{ form.username.value|default_if_none:''}}">
+            <br><br>
+            <span class="password_text">비밀번호</span><br>
+                <input name="password1" type="password" class="box" value="{{ form.password.value|default_if_none:''}}">
+                <br><br><br>
+                <input type="submit" class="sibu" value="로그인">
+                <br><br>
+            <div class="hr">
+            <a href="">아이디 찾기</a>
+            &nbsp &nbsp
+            <a href="">비밀번호 찾기</a>
+            &nbsp &nbsp
+            <a href="{% url 'dig_site:signup' %}">회원가입</a>
+        </div>
+        </form>
+    </div>
+</body>
+{% endblock %}

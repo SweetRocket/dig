@@ -13,9 +13,15 @@
 </style>
 
 {% block content %}
-<div id="work-date">
+<div id="work-info">
   <form onChange="loadData(this)">
     <input type="date" />
+    <select name="dig_site">
+      <option value="-1">현장 선택 안함</option>
+      {% for dig_site in dig_site_list %}
+      <option value="{{ dig_site.id }}">{{ dig_site.name }}</option>
+      {% endfor %}
+    </select>
   </form>
 </div>
 <br />
@@ -42,7 +48,7 @@
     {
       name: '선택안함',
       id: '-1',
-    }{% for worker in workers %}
+    },{% for worker in workers %}
     {
         name: '{{ worker.name }}',
         id: '{{ worker.id }}'
@@ -54,7 +60,7 @@
   function workerOptions(selectedList) {
       return workerList
           // {% comment %} option으로 변환 {% endcomment %}
-          .map(worker => `<option id="${worker.id}">${worker.name}</option>`)
+          .map(worker => `<option value="${worker.id}">${worker.name}</option>`)
           // {% comment %} 선택된 유저를 selected로 설정 {% endcomment %}
           .map(option => {
               // {% comment %} 만약 선택된 유저가 있다면 {% endcomment %}
@@ -82,7 +88,7 @@
       <tr data-id="${id}">
           <td>
               <form onchange="updateChange(${id})">
-                  <input type="text" name="name" value="${name}">
+                  <input type="text" name="zone" value="${name}">
               </form>
           </td>
           <td>
@@ -105,7 +111,7 @@
                           이미지 추가+
                       </label>
                   </div>
-                  <input type="file" id="chooseFile" name="chooseFile" accept="image/*" {% comment %} onchange="loadFile(this)" {% endcomment %} >
+                  <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="prepareUpload(${id})">
               </form>
           </td>
           <td>
@@ -118,39 +124,81 @@
 
   // {% comment %} 작업자 선택시 새로운 작업자 선택 추가 {% endcomment %}
   function updateWorker(elem) {
+    // {% comment %} 선택된 작업자가 없는 경우 {% endcomment %}
+    if (elem.value === '-1') {
+      elem.remove();
+    }
+
+    // {% comment %} 선택 가능한 작업자가 없는 경우 {% endcomment %}
+    if (elem.querySelectorAll('option[value="-1"]').length === 0) {
+      return;
+    }
+
     elem.innerHTML += buildWorkerSelect(elem.querySelectorAll('select').length);
+  }
+
+  function prepareUpload(id) {
+    const elem = document.querySelector(`tr[data-id="${id}"]`);
+    const button = elem.querySelector('input[name="chooseFile"]');
+    const label = elem.querySelector('label[for="chooseFile"]');
+
+    button.disabled = true;
+    label.innerText = '업로드 준비중...';
+  }
+
+  function disableUploadButton(elem) {
+    console.log(elem)
+    const button = elem.querySelector('input[name="chooseFile"]');
+    const label = elem.querySelector('label[for="chooseFile"]');
+
+    button.disabled = true;
+    label.innerText = '업로드 중...';
+  }
+
+  function enableUploadButton(elem) {
+    const button = elem.querySelector('input[name="chooseFile"]');
+    const label = elem.querySelector('label[for="chooseFile"]');
+
+    button.disabled = false;
+    label.innerText = '이미지 추가+';
   }
 
   // {% comment %} 데이터 변경 시 서버에 전송 {% endcomment %}
   function updateChange(id) {
       const elem = document.querySelector(`tr[data-id="${id}"]`);
 
-      const _name = elem.querySelector('input[name="name"]').value;
+      const _zone = elem.querySelector('input[name="zone"]').value;
       const _note = elem.querySelector('input[name="note"]').value;
-      const _image = elem.querySelector('input[name="chooseFile"]').value;
+      const _image = elem.querySelector('input[name="chooseFile"]');
       const _workers = [...elem.querySelectorAll('select[name^="worker-"]')]
                           .map(worker => worker.value);
   
-      // Check data is not changed after a second, then send to server
+      // {% comment %} 데이터가 1초동안 변경이 없는 경우 업로드드 {% endcomment %}
       setTimeout(
-          () => {
-              const name = elem.querySelector('input[name="name"]').value;
+          async () => {
+              const zone = elem.querySelector('input[name="zone"]').value;
               const note = elem.querySelector('input[name="note"]').value;
-              const image = elem.querySelector('input[name="chooseFile"]').value;
+              const image = elem.querySelector('input[name="chooseFile"]');
               const workers = [...elem.querySelectorAll('select[name^="worker-"]')]
                                   .map(worker => worker.value);
 
-              if (name === _name && _.isEqual(workers, _workers) && note === _note && image === _image) {
-                  console.log('send to server', id, name, workers, note, image);
-
-                  const data = {
-                      name,
-                      workers,
-                      note,
-                      image,
+              if (zone === _zone && _.isEqual(workers, _workers) && note === _note && image.value === _image.value) {
+                  let uploadImage = null;
+                  console.log('send to server', id, zone, workers, note, image);
+                  if ((image?.files?.length ?? 0 > 0) && (image.value !== '')) {
+                    disableUploadButton(elem);
+                    uploadImage = await readFileInput(image);
+                    image.value = '';
                   }
 
-                  fetch(`/api/work/update/${id}`, {
+                  const data = {
+                      zone,
+                      workers,
+                      note,
+                      image: uploadImage,
+                  }
+
+                  fetch(`{% url 'api:work:update' 0 %}`.replace('0', id), {
                       method: 'POST',
                       headers: {
                           'Content-Type': 'application/json',
@@ -158,9 +206,11 @@
                       },
                       mode: 'same-origin',
                       body: JSON.stringify(data),
-                  }).catch(err => console.log(err)).then(res => res.json()).then(data => {
+                  }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result ).then(data => {
                       document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.name, data.images, data.note, data.workers);
+                      enableUploadButton(elem);
                   })
+
               }
           },
           1000
@@ -170,8 +220,16 @@
   // {% comment %} 페이지 데이터 로드 {% endcomment %}
   function loadData(elem) {
       const date = elem.querySelector('input[type="date"]').value;
+      const site = elem.querySelector('select[name="dig_site"]').value;
 
-      fetch(`/api/work/${date}`, {
+      const param = {
+          date,
+          site: site === '-1' ? null : site,
+      }
+
+      const url = buildQueryParams("{% url 'api:work:load' %}", param);
+
+      fetch(url, {
           headers:{
             'Content-Type': 'application/json',
             'X-CSRFToken': csrf,
@@ -191,8 +249,17 @@
   // {% comment %} 새로운 행 추가 {% endcomment %}
   function addNewRow() {
       const table = document.querySelector('#work tbody');
+      const date = document.querySelector('#work-info input[type="date"]').value;
+      const site = document.querySelector('#work-info select[name="dig_site"]').value;
 
-      fetch(`/api/work/new`, {
+      if (site === '-1') {
+          alert('현장을 선택해주세요.');
+          return;
+      }
+      
+      const url = `{% url 'api:work:new' '__date__' 0 %}`.replace('__date__', date).replace('0', site)
+
+      fetch(url, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -200,18 +267,19 @@
           },
           mode: 'same-origin',
           body: JSON.stringify({
-              date: document.querySelector('#work-date input[type="date"]').value,
+              date
           }),
-      }).catch(err => console.log(err)).then(res => res.json()).then(data => {
+      }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(data => {
+          console.log(data);
           table.innerHTML += buildItemTag(data.id, data.name, data.images, data.note, data.workers);
       })
   }
 
   // {% comment %} 페이지 로드시 실행 {% endcomment %}
   (() => {
-    document.querySelector('#work-date input[type="date"]').valueAsDate = new Date();
+    document.querySelector('#work-info input[type="date"]').valueAsDate = new Date();
 
-    loadData(document.querySelector('#work-date'));
+    loadData(document.querySelector('#work-info'));
   })();
   {% endblock %}
 </script>

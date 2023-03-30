@@ -4,11 +4,18 @@
     box-sizing: border-box;
 }
 
+body {
+    background: #F0F0F0;
+   /* background-image: url("background.jpg"); */
+ 
+
+}
+
 /* 회원가입 */
 .wrapper {
     background-color: #f2f2f2;
     width: 600px;
-    height: 430px;
+    height: 500px;
 }
 
 .signup_img {
@@ -44,7 +51,12 @@
     cursor: auto;
 }
 
-.empname_text {
+.name_text{
+    margin-right: 265px;
+    font-weight: bold;
+}
+
+.emp_id_text {
     margin-right: 240px;
     font-weight: bold;
 }
@@ -68,7 +80,7 @@
 
 /* 헤더: 날씨 위젯, 로고 이미지, 로그인, 회원가입 버튼 */
 
-.header {
+.headerr {
     width: 100%;
     height: 170px;
     position: static;
@@ -77,7 +89,8 @@
 .weatherwidget {
     position: absolute;
     top: 20px;
-    left: 200px;
+    left: 150px;
+    width: 200px;
 }
 
 .header_img {
@@ -85,7 +98,7 @@
     left: 40%;
     right: 50%;
     width: 270px;
-    height: 170px;
+    height: 200px;
     padding-top: 20px;
 }
 
@@ -103,7 +116,7 @@
     border: none;
     font-weight: bold;
     cursor: pointer;
-    margin-right: 15px;
+
     border-radius: 10px;
 
 }
@@ -115,7 +128,7 @@
     border: none;
     font-weight: bold;
     cursor: pointer;
-    margin-right: 160px;
+    margin-right: 80px;
     border-radius: 10px;
 }
 
@@ -172,7 +185,7 @@ a {
     float: left;
     text-align: center;
     line-height: 40px;
-    background-color: #3771AC;
+    background-color: #21325E;
 
 }
 
@@ -285,7 +298,7 @@ h4 {
 }
 
 /*********작업 일지********/
-#date {
+#work-info {
     margin-left: 4%;
     font-size: 100px;
     width: 20%;
@@ -293,7 +306,7 @@ h4 {
     float: left;
 }
 
-#date>form {
+#work-info>form {
     width: 150px;
     height: 0px;
     font-size: 20px;
@@ -307,13 +320,13 @@ h4 {
     border-collapse: collapse;
 }
 
-th,
+.tth,
 td {
     border: 1px solid #444444;
     padding: 10px;
 }
 
-td>form {
+.ttd>form {
     width: 200px;
     text-align: center;
 }
