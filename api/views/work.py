@@ -131,3 +131,13 @@ def workers(request):
         'status': 'ok',
         'result': workers
     })
+
+@requires_csrf_token
+@login_required
+def recent(request):
+    works = WorkHistory.objects.all().order_by('-updated_at')[:10]
+    
+    return JsonResponse({
+        'status': 'ok',
+        'result': [work_to_dict(w) for w in works]
+    })

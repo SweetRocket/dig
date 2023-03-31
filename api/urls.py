@@ -12,7 +12,7 @@ work_urlpatterns = [
     path('workers', views.work.workers, name='workers'),
     path('new/<date>/<int:site>', views.work.new, name='new'),
     path('update/<int:id>', views.work.update, name='update'),
-    
+    path('recent', views.work.recent, name='recent'),
 ];
 
 urlpatterns = [

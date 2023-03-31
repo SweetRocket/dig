@@ -1,18 +1,25 @@
 {% extends 'base.html' %} {% load static %} {% block title %}상황판{% endblock%}
+
 {% block content %}
 <div class="container">
   <div class="row">
     <div class="col-3">
-      <h2>최근 작업 일지 업데이트</h2>
-      <table class="table table-striped">
+      <h2>최근 업데이트</h2>
+      <table class="table table-striped" id="work-history">
         <thead>
           <tr>
-            <th>업데이트</th>
+            <th>시간</th>
             <th>현장</th>
             <th>유구</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <tr>
+            <td>2020-08-01 12:00:00</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+        </tbody>
       </table>
     </div>
     <div class="col-6">
@@ -21,23 +28,28 @@
           <img
             src="{% static 'not_connected.png' %}"
             alt="detection"
-            width="100%"
-            height="100%"
+            width="640px"
+            height="480px"
+            id="detection"
           />
         </div>
       </h2>
     </div>
     <div class="col-3">
       <h2>Detection Log</h2>
-      <table class="table table-striped">
+      <table class="table table-striped" id="detection-log">
         <thead>
           <tr>
             <th>Time</th>
             <th>Model</th>
             <th>Type</th>
+            <th>Confidence</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <tr>
+          </tr>
+        </tbody>
       </table>
     </div>
   </div>
@@ -46,6 +58,71 @@
 
 <script>
   {% block end_script %}
+    function updateWorkHistory() {
+      fetch("{% url 'api:work:recent' %}")
+        .then(response => response.json())
+        .then(data => {
+          const workHistory = document.querySelector('#work-history tbody')
 
+          workHistory.innerHTML = ''
+
+          data.result.forEach(work => {
+            const row = document.createElement('tr')
+            row.innerHTML = `
+              <td>${work.updated_at_timeonly}</td>
+              <td>${work.site_name}</td>
+              <td>${work.zone}</td>
+            `
+            workHistory.appendChild(row)
+          })
+        })
+    }
+
+    const stereamUrl = "ws://localhost:5000/feed/0";
+
+   
+    const logTable = document.querySelector('#detection-log tbody');
+
+    const img_write = (img) => {
+      document.querySelector('#detection').src = img;
+    }
+  
+    const log_write = async (detected, msg) => {
+      const time = new Date().toLocaleTimeString("en-GB");
+      detected.forEach((detection) => {
+        if (
+          !(detection.cls_name.includes("NO") || detection.model == "handmotion")
+        ) {
+          return;
+        }
+      
+        if (detection.confidence < 0.8) {
+          return;
+        }
+
+        const confidence = detection.confidence.toFixed(2);
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${time}</td>
+          <td>${detection.model}</td>
+          <td>${detection.cls_name}</td>
+          <td>${confidence}</td>
+        `;
+        logTable.prepend(row);
+      });
+  
+      while (logTable.childElementCount > 10) {
+        logTable.removeChild(logTable.lastChild);
+      }
+    }
+
+    (() => {
+      updateWorkHistory();
+      setInterval(updateWorkHistory, 5000)
+
+      const streamer = new WebSocketStreamer(stereamUrl, img_write, log_write);
+      streamer.connect();
+    })();
   {% endblock %}
 </script>
