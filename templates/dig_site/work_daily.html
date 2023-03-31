@@ -16,28 +16,40 @@
 <h3 class='pagetitle' style="text-align: center;">작업 일지</h3>
 <div id="work-info">
   <form onChange="changeData(this)">
-    <input type="date" />
-    <select name="dig_site">
+    <table class='for_form'>
+      <tr>
+        <td style='padding:20px'>
+          <input type="date" />
+        </td>
+        <td>
+          <select name="dig_site">
       <option value="-1">현장 선택 안함</option>
       {% for dig_site in sites %}
         <option value="{{ dig_site.id }}">{{ dig_site.name }}</option>
       {% endfor %}
     </select>
+  </td>
+  </table>
   </form>
 </div>
+
 <br />
-<table id="work">
+<table id="work" style='margin-top:20px'>
   <thead>
-    <tr>
-      <th>유구</th>
-      <th>작업 근로자</th>
-      <th>출토 유물</th>
-      <th>특이사항</th>
+    <tr class='work_tr'>
+      <th class='work_th'>유구</th>
+      <th class='work_th'>작업 근로자</th>
+      <th class='work_th'>출토 유물</th>
+      <th class='work_th'>특이사항</th>
     </tr>
   </thead>
-  <tbody></tbody>
+  <tbody>
+  </tbody>
+  <tfoot><tr>
+    <td class='inputbt' colspan="4"><input class="hang" type="button" value="행추가" onclick="addNewRow()" /></td>
+  </tr></tfoot>
 </table>
-<input class="hang" type="button" value="행추가" onclick="addNewRow()" />
+
 
 {% csrf_token %}
 {% endblock %}
