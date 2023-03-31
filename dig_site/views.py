@@ -26,7 +26,7 @@ def report(request):
         q &= Q(region=r)
 
     if (s := request.GET.get('query', None)) is not None:
-        q &= Q(title__icontains=s)
+        q &= Q(name__icontains=s)
 
     reports = Report.objects.filter(q).all()
     
