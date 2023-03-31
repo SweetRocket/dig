@@ -15,10 +15,13 @@
     </div>
 
     <div class="sign_in_up">
+        {% if user.is_authenticated %}
+            <a href="{% url 'common:logout' %}"><input type="submit" class="logout_but" value="로그아웃"></a>
+        {% else %}
+            <a href="{% url 'common:login' %}"><input type="submit" class="login_but" value="로그인"></a>
 
-        <a href="{% url 'common:login' %}"><input type="submit" class="login_but" value="로그인"></a>
-
-        <a href="{% url 'common:signup' %}"><input type="submit" class="signup_but" value="회원가입"></a>
+            <a href="{% url 'common:signup' %}"><input type="submit" class="signup_but" value="회원가입"></a>
+        {% endif %}
     </div>
 </div>
 <br>

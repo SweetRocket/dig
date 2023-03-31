@@ -14,12 +14,12 @@
 
 {% block content %}
 <div id="work-info">
-  <form onChange="loadData(this)">
+  <form onChange="changeData(this)">
     <input type="date" />
     <select name="dig_site">
       <option value="-1">현장 선택 안함</option>
       {% for dig_site in dig_site_list %}
-      <option value="{{ dig_site.id }}">{{ dig_site.name }}</option>
+        <option value="{{ dig_site.id }}">{{ dig_site.name }}</option>
       {% endfor %}
     </select>
   </form>
@@ -43,18 +43,8 @@
 
 <script>
   {% block end_script %}
-  // {% comment %} 유저 목록 django {% endcomment %}
-  const workerList = [
-    {
-      name: '선택안함',
-      id: '-1',
-    },{% for worker in workers %}
-    {
-        name: '{{ worker.name }}',
-        id: '{{ worker.id }}'
-    },{% endfor %}];
-
   const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+  let workerList = [];
 
   // {% comment %} 유저 목록 생성 {% endcomment %}
   function workerOptions(selectedList) {
@@ -75,8 +65,9 @@
 
   // {% comment %} 새 작업자 선택 추가 {% endcomment %}
   function buildWorkerSelect(index, selectedWorkers = []) {
+    const site = document.querySelector('select[name="dig_site"]').value;
     return `
-      <select title="worker-${index}" name="worker-${index}">
+      <select title="worker-${index}" name="worker-${index}" ${ site === '-1' ? "disabled" : "" }>
         ${workerOptions(selectedWorkers)}
       </select>
     `;
@@ -245,6 +236,32 @@
           table.innerHTML = data.result.map(item => buildItemTag(item.id, item.name, item.images, item.note, item.workers)).join('');
       })
   }
+
+  // {% comment %} worker 로드 {% endcomment %}
+  async function loadWorkers() {
+    const site = document.querySelector('#work-info select[name="dig_site"]').value;
+    const url = buildQueryParams("{% url 'api:work:workers' %}", { site: site === '-1' ? null : site });
+
+    const _workers = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf,
+      },
+      mode: 'same-origin',
+    }).catch(err => console.log(err)).then(res => res.json()).then(data => data?.result ?? [] );
+    
+
+    workers = _workers.map(worker => ({ id: worker.id, name: worker.name }));
+    return workers
+  }
+
+
+  // {% comment %} 검색 설정 값 변경시{% endcomment %}
+  async function changeData(elem) {
+    await loadWorkers();
+    loadData(elem);
+  }
+
 
   // {% comment %} 새로운 행 추가 {% endcomment %}
   function addNewRow() {

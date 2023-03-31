@@ -1,270 +1,293 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block title %}발굴 보고서{%endblock %}
 
-{% block title %}발굴 보고서{% endblock %}
 <style>
-    {% block head_style %}
+  {% block head_style %}
 
-    .menubar_search{
-        width:1000px;
-        padding-left:60px;
-        margin-top:0;
-    }
+  .menubar_search{
+      width:1000px;
+      padding-left:60px;
+      margin-top:0;
+  }
 
-    .dropdown * {
-        box-sizing: border-box;
-    }
+  .dropdown * {
+      box-sizing: border-box;
+  }
 
-    .dropdown {
-        min-width: 15em;
-        position: relative;
-        display: inline-block;
-        margin: 2em;
-    }
-    
-    .select {
-        background: #2a2f3b;
-        color: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border: 2px #2a2f3b solid;
-        border-radius: 0.5em;
-        padding: 1em;
-        cursor: pointer;
-        transition: background 0.3s;
-    }
-    
-    .select-clicked {
-        border: 2px #26489a solid;
-        box-shadow: 0 0 0.8em #26489a;
-    }
-    
-    .select:hover {
-        background: #323741;
-    }
-    
-    .caret {
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 6px solid #fff;
-        transition: 0.3s;
-    }
-    
-    .caret-rotate {
-        transform: rotate(180deg);
-    }
-    
-    .menu_report {
-        list-style: none;
-        padding: 0.2em 0.5em;
-        background: #323741;
-        border: 1px #363a43 solid;
-        box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.2);
-        border-radius: 0.5em;
-        color: #9fa5b5;
-        position: absolute;
-        top: 3em;
-        left: 50%;
-        width: 100%;
-        transform: translateX(-50%);
-        opacity: 0; 
-        display: none;
-        transition: 0.2s;
-        z-index: 1;
-    }
-    
-    .menu_report li {
-        padding: 0.7em 0.5em;
-        margin: 0.3em 0;
-        border-radius: 0.5em;
-        cursor: pointer;
-    }
-    
-    .menu_report li:hover {
-        background: #2a2d35;
-    }
-    
-    .active {
-        background: #23242a;
-    }
-    
-    .menu_report-open {
-        display: block;
-        opacity: 1;
-    }
+  .dropdown {
+      min-width: 15em;
+      position: relative;
+      display: inline-block;
+      margin: 2em;
+  }
 
-    .searchfield{
-        display: inline-block;
+  .select {
+      background: #2a2f3b;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px #2a2f3b solid;
+      border-radius: 0.5em;
+      padding: 1em;
+      cursor: pointer;
+      transition: background 0.3s;
+  }
 
-    }
-    {% endblock %}
-    </style>
-    
+  .select-clicked {
+      border: 2px #26489a solid;
+      box-shadow: 0 0 0.8em #26489a;
+  }
+
+  .select:hover {
+      background: #323741;
+  }
+
+  .caret {
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid #fff;
+      transition: 0.3s;
+  }
+
+  .caret-rotate {
+      transform: rotate(180deg);
+  }
+
+  .menu_report {
+      list-style: none;
+      padding: 0.2em 0.5em;
+      background: #323741;
+      border: 1px #363a43 solid;
+      box-shadow: 0 0.5em 1em rgba(0, 0, 0, 0.2);
+      border-radius: 0.5em;
+      color: #9fa5b5;
+      position: absolute;
+      top: 3em;
+      left: 50%;
+      width: 100%;
+      transform: translateX(-50%);
+      opacity: 0;
+      display: none;
+      transition: 0.2s;
+      z-index: 1;
+  }
+
+  .menu_report li {
+      padding: 0.7em 0.5em;
+      margin: 0.3em 0;
+      border-radius: 0.5em;
+      cursor: pointer;
+  }
+
+  .menu_report li:hover {
+      background: #2a2d35;
+  }
+
+  .active {
+      background: #23242a;
+  }
+
+  .menu_report-open {
+      display: block;
+      opacity: 1;
+  }
+
+  .searchfield{
+      display: inline-block;
+
+  }
+  {% endblock %}
+</style>
+
 {% block content %}
-<div class='menubar_search'>
-
+<div class="menubar_search">
+  <form onsubmit="submitSearch(this);return false;">
     <div class="dropdown">
-        <div class="select">
-            <span class="selected">시대</span>
-            <div class="caret"></div>
-        </div>
-        <ul class="menu_report">
-            <!-- <li class ='active'>시대</li> -->
-            <li>구석기</li>
-            <li>신석기</li>
-            <li>청동기</li>
-            <li>철기</li>
-        </ul>
+      <div class="select" name="age">
+        <span class="selected">시대</span>
+        <div class="caret"></div>
+      </div>
+      <ul class="menu_report">
+        <li>시대</li>
+        <li>구석기</li>
+        <li>신석기</li>
+        <li>청동기</li>
+        <li>철기</li>
+      </ul>
     </div>
     <div class="dropdown">
-        <div class="select">
-            <span class="selected">지역</span>
-            <div class="caret"></div>
-        </div>
-        <ul class="menu_report">
-            <!-- <li class ='active'>지역</li> -->
-            <li>서울</li>
-            <li>경기도</li>
-            <li>인천</li>
-            <li>강원도</li>
-            <li>세종</li>
-            <li>대전</li>
-            <li>충천북도</li>
-            <li>충천남도</li>
-            <li>대구</li>
-            <li>경상북도</li>
-            <li>경상남도</li>
-            <li>울산</li>
-            <li>부산</li>
-            <li>광주</li>
-            <li>전라북도</li>
-            <li>전라남도</li>
-            <li>제주도</li>
-            <li>울릉도</li>
-        </ul>
+      <div class="select" name="region">
+        <span class="selected">지역</span>
+        <div class="caret"></div>
+      </div>
+      <ul class="menu_report">
+        <li>지역</li>
+        <li>서울</li>
+        <li>경기도</li>
+        <li>강원도</li>
+        <li>충청북도</li>
+        <li>충청남도</li>
+        <li>경상북도</li>
+        <li>경상남도</li>
+        <li>전라북도</li>
+        <li>전라남도</li>
+        <li>제주도</li>
+      </ul>
     </div>
     <!-- 여기까지 베타 -->
     <!-- 검색엔진 -->
-    <div class='searchfield'>
-        <form action="/search" method="get">
-            <input type="text" name="query" placeholder="검색어를 입력하세요">
-            <button type="submit">검색</button>
-        </form>
+    <div class="searchfield">
+      <input type="text" name="query" placeholder="검색어를 입력하세요" />
+      <button type="submit">검색</button>
     </div>
-
+  </form>
 </div>
 
-
-    <div class="slider">
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=85412&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물1.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=85266&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물2.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=85385&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물3.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=84845&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물4.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82177&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물5.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82119&bbsId=BBSMSTR_1021&pageIndex=2&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물6.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=81795&bbsId=BBSMSTR_1021&pageIndex=2&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물7.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=79377&bbsId=BBSMSTR_1021&pageIndex=3&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물8.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=79376&bbsId=BBSMSTR_1021&pageIndex=3&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물9.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=79375&bbsId=BBSMSTR_1021&pageIndex=3&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물10.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=78411&bbsId=BBSMSTR_1021&pageIndex=3&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물11.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=79361&bbsId=BBSMSTR_1021&pageIndex=3&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물12.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=78096&bbsId=BBSMSTR_1021&pageIndex=3&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물13.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82180&bbsId=BBSMSTR_1021&pageIndex=4&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물14.jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=73757&bbsId=BBSMSTR_1021&pageIndex=5&pageUnit=10&searchCnd=tc&searchWrd=%eb%b0%9c%ea%b5%b4&ctgryLrcls=&ctgryMdcls=&ctgrySmcls=&ntcStartDt=&ntcEndDt=&searchUseYn=Y&mn=NS_03_08_01"><img
-                    src="{% static '간행물15.jpg' %}"></a></div>
-    </div>
+<div class="slider">
+  {% for report in reports %}
+  <div>
+    <a href="{{ report.url }}"
+      ><img
+        title="{{ report.name }}"
+        src="{% if report.image %}{{ report.image.image.url }}{% endif %}"
+    /></a>
+  </div>
+  {% endfor %}
+</div>
 {% endblock %}
 
 <script>
-    {% block end_script %}
-    $(document).ready(function(){
-        $('.slider').bxSlider({
-          mode: 'horizontal',  // 슬라이드 모드를 수평(horizontal)으로 설정합니다.
-          speed: 500,          // 슬라이드 전환 속도를 설정합니다.
-          pause: 5000,         // 자동 재생 시 한 장의 이미지가 보여지는 시간을 설정합니다.
-          auto: true,          // 자동 재생 여부를 설정합니다.
-          pager: true,         // 페이저를 보여줄지 여부를 설정합니다.
-          controls: false,     // 이전/다음 버튼을 보여줄지 여부를 설정합니다.
-          autoControls: true,  // 자동 재생 시작/정지 버튼을 보여줄지 여부를 설정합니다.
-          slideMargin: 10,     // 슬라이드 간격을 설정합니다.
-          minSlides: 2,        // 슬라이드가 최소 몇 장 이상 보여져야 하는지를 설정합니다.
-          maxSlides: 5,        // 슬라이드가 최대 몇 장까지 보여질 수 있는지를 설정합니다.
-          slideWidth: 170,     // 슬라이드의 너비를 설정합니다.
-          slideHeight: 170,    // 슬라이드의 높이를 설정합니다.
-        });
-    });
+      {% block end_script %}
+      $(document).ready(function(){
+          $('.slider').bxSlider({
+            mode: 'horizontal',  // 슬라이드 모드를 수평(horizontal)으로 설정합니다.
+            speed: 500,          // 슬라이드 전환 속도를 설정합니다.
+            pause: 5000,         // 자동 재생 시 한 장의 이미지가 보여지는 시간을 설정합니다.
+            auto: true,          // 자동 재생 여부를 설정합니다.
+            pager: true,         // 페이저를 보여줄지 여부를 설정합니다.
+            controls: false,     // 이전/다음 버튼을 보여줄지 여부를 설정합니다.
+            autoControls: true,  // 자동 재생 시작/정지 버튼을 보여줄지 여부를 설정합니다.
+            slideMargin: 10,     // 슬라이드 간격을 설정합니다.
+            minSlides: 2,        // 슬라이드가 최소 몇 장 이상 보여져야 하는지를 설정합니다.
+            maxSlides: 5,        // 슬라이드가 최대 몇 장까지 보여질 수 있는지를 설정합니다.
+            slideWidth: 170,     // 슬라이드의 너비를 설정합니다.
+            slideHeight: 170,    // 슬라이드의 높이를 설정합니다.
+          });
+      });
 
-    const dropdowns = document.querySelectorAll('.dropdown');
+      const dropdowns = document.querySelectorAll('.dropdown');
 
-dropdowns.forEach(dropdown => {
+  dropdowns.forEach(dropdown => {
 
-    const select = dropdown.querySelector('.select');
-    const caret = dropdown.querySelector('.caret');
-    const menu_report = dropdown.querySelector('.menu_report');
-    const options = dropdown.querySelectorAll('.menu_report li');
-    const selected = dropdown.querySelector('.selected');
-    
-    select.addEventListener('click', () => {
+      const select = dropdown.querySelector('.select');
+      const caret = dropdown.querySelector('.caret');
+      const menu_report = dropdown.querySelector('.menu_report');
+      const options = dropdown.querySelectorAll('.menu_report li');
+      const selected = dropdown.querySelector('.selected');
 
-        select.classList.toggle('select-clicked');
+      select.addEventListener('click', () => {
 
-        caret.classList.toggle('caret-rotate');
+          select.classList.toggle('select-clicked');
 
-        menu_report.classList.toggle('menu_report-open');
-    });
+          caret.classList.toggle('caret-rotate');
 
-    options.forEach(option => {
+          menu_report.classList.toggle('menu_report-open');
+      });
 
-        option.addEventListener('click', () => {
+      options.forEach(option => {
 
-            selected.innerText = option.innerText;
+          option.addEventListener('click', () => {
 
-            select.classList.remove('select-clicked');
+              selected.innerText = option.innerText;
 
-            caret.classList.remove('caret-rotate');
+              select.classList.remove('select-clicked');
 
-            menu_report.classList.remove('menu_report-open');
+              caret.classList.remove('caret-rotate');
 
-            options.forEach(option => {
-                option.classList.remove('active');
-            });
+              menu_report.classList.remove('menu_report-open');
 
-            option.classList.add('active');
-        });
-    });
-});
+              options.forEach(option => {
+                  option.classList.remove('active');
+              });
 
-    {% endblock %}
+              option.classList.add('active');
+          });
+      });
+  });
+
+  const ageObj = {
+      '시대': null,
+      '구석기': 0,
+      '신석기': 1,
+      '청동기': 2,
+      '철기': 3,
+  }
+
+  const regionObj = {
+      '지역': null,
+      '서울': 0,
+      '경기도': 1,
+      '강원도': 2,
+      '충청북도': 3,
+      '충청남도': 4,
+      '경상북도': 5,
+      '경상남도': 6,
+      '전라북도': 7,
+      '전라남도': 8,
+      '제주도': 9
+  }
+
+
+  function submitSearch(elem) {
+      const query = elem.querySelector('input[name=query]').value.trim();
+      const age = elem.querySelector('.select[name="age"] .selected').innerText;
+      const region = elem.querySelector('.select[name="region"] .selected').innerText;
+
+      const param = {
+          query: query.length > 0 ? query : null,
+          age: ageObj[age],
+          region: regionObj[region]
+      };
+
+      const url = new URL(window.location.href);
+
+      for (const key in param) {
+          if (param[key] !== null) {
+              url.searchParams.set(key, param[key]);
+          } else {
+              url.searchParams.delete(key);
+          }
+      }
+
+      window.location.href = url.href;
+  }
+
+  (() => {
+      const url = new URL(window.location.href);
+
+      const query = url.searchParams.get('query');
+      const age = url.searchParams.get('age');
+      const region = url.searchParams.get('region');
+
+      const queryElem = document.querySelector('input[name=query]');
+      const ageElem = document.querySelector('.select[name="age"] .selected');
+      const regionElem = document.querySelector('.select[name="region"] .selected');
+
+      if (query) {
+          queryElem.value = query;
+      }
+
+      if (age) {
+          ageElem.innerText = Object.keys(ageObj).find(key => ageObj[key] == age);
+      }
+
+      if (region) {
+          regionElem.innerText = Object.keys(regionObj).find(key => regionObj[key] == region);
+      }
+  })();
+      {% endblock %}
 </script>
