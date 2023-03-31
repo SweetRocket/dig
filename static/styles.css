@@ -7,7 +7,6 @@
 body {
     background: #F0F0F0;
    /* background-image: url("background.jpg"); */
- 
 
 }
 
@@ -290,11 +289,13 @@ footer .logo {
     padding-left: 50px;
     padding-right: 50px;
     padding-bottom: 50px;
+    border: none;
 }
 
 .weatherforecast {
     margin-left: 350px;
     margin-right: 300px;
+    border: none;
 }
 
 h4 {
@@ -327,17 +328,14 @@ h4 {
     margin: 0 auto;
     margin-top: 30px;
     width: 80%;
-    border: 1px solid #444444;
     border-collapse: collapse;
 }
 
-.tth,
-td {
-    border: 1px solid #444444;
+#work>th,td {
     padding: 10px;
 }
 
-.ttd>form {
+#work>td>form {
     width: 200px;
     text-align: center;
 }
