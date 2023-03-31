@@ -7,7 +7,7 @@ from django.views import generic
 from django.urls import reverse
 
 from common.forms import SignupForm
-from common.models import Employee
+from common.models import Employee, Profile
 
 # Create your views here.
 
@@ -26,6 +26,11 @@ class SignupView(generic.CreateView):
         # 사원이 없거나, 가입이 불가능한 경우
         if emp is None or emp.joinable is not True:
             return self.render_to_response({'error': 'Invalid Employee', 'form': form })
+
+        # 이미 가입한 경우
+        emp_profile = Profile.objects.filter(emp=emp).first()
+        if emp_profile is not None:
+            return self.render_to_response({'error': 'Already Joined', 'form': form })
 
         # form 저장
         form.save()
