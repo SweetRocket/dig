@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'KimjungchulGothic-Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulGothic-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+
 /* main page */
 * {
     margin: 0 auto;
@@ -8,6 +16,12 @@ body {
     background: #F0F0F0;
    /* background-image: url("background.jpg"); */
 
+}
+
+.pagetitle {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-family: 'KimjungchulGothic-Bold';
 }
 
 /* 회원가입 */
