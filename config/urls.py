@@ -23,4 +23,4 @@ urlpatterns = [
     path('', include('dig_site.urls')),
     path('common/', include('common.urls')),
     path('api/', include('api.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
