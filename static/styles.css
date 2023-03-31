@@ -289,46 +289,18 @@ footer .logo {
 }
 
 
-/* 날씨용 css */
 
-.flex-container {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-
-}
-
-.weathertoday {
-    padding-left: 50px;
-    padding-right: 50px;
-    padding-bottom: 50px;
-    border: none;
-}
-
-.weatherforecast {
-    margin-left: 350px;
-    margin-right: 300px;
-    border: none;
-}
-
-h4 {
-    text-align: center;
-}
-
-
-
-* {
-    margin: 0 auto;
-    box-sizing: border-box;
-}
 
 /*********작업 일지********/
+
+
+
 #work-info {
     margin-left: 4%;
     font-size: 100px;
     width: 20%;
     height: 30px;
-    float: left;
+
 }
 
 #work-info>form {
@@ -339,13 +311,25 @@ h4 {
 
 #work {
     margin: 0 auto;
-    margin-top: 30px;
+    padding-top: 30px;
     width: 80%;
     border-collapse: collapse;
 }
 
-#work>th,td {
+td>.inputbt{
+    border: none;
+}
+
+.work_tr>th, .work_th>td {
+    border: 1px solid #444444
+}
+
+#work>th, #work>td {
     padding: 10px;
+}
+
+.work_th {
+    text-align: center;
 }
 
 #work>td>form {
@@ -363,13 +347,22 @@ label {
     margin: 0 auto;
     margin-left: 10%;
     width: 80%;
-    border: 1px solid #444444;
     border-collapse: collapse;
 }
 
 .hang {
-    width: 80%;
-    margin-left: 154px;
+    width: 100%;
+    margin-top: 10px;
+    background-color: rgb(197, 197, 197);
+    border-radius: 8px;
+}
+
+td>.inputbt{
+    border: none;
+}
+
+.for_form>td{
+    margin: 20px;
 }
 
 /* 로그인 페이지 */
@@ -391,4 +384,43 @@ label {
 .password2_text {
     margin-right: 200px;
     font-weight: bold;
+}
+
+/* 날씨용 css */
+
+.flex-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+.weathertoday {
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+}
+.weathertoday th,td {
+    border: none;
+}
+
+.weatherforecast {
+    margin-left: 350px;
+    margin-right: 300px;
+    border: none;
+}
+
+.weatherforecast th,td {
+    border: none;
+}
+
+h4 {
+    text-align: center;
+}
+
+
+
+* {
+    margin: 0 auto;
+    box-sizing: border-box;
 }
