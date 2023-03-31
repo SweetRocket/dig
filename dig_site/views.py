@@ -4,6 +4,8 @@ from django.contrib import auth
 from .models import SiteInfo, Report
 from django.contrib.auth.models import User
 from django.db.models import Q
+
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 
@@ -34,6 +36,8 @@ def report(request):
         'reports': reports
     })
 
+
+@login_required
 def work_daily(request):
     site = SiteInfo.objects.all()
     
@@ -42,3 +46,6 @@ def work_daily(request):
     }
 
     return render(request, 'dig_site/work_daily.html', data)
+
+def dashboard(request):
+    return render(request, 'dig_site/dashboard.html')

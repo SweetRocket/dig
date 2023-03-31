@@ -17,7 +17,7 @@ import datetime
 import json
 
 @requires_csrf_token
-#@login_required
+@login_required
 def load(request):
     date = request.GET.get('date', datetime.datetime.now().strftime('%Y-%m-%d'))
     site = request.GET.get('site', None)
@@ -39,7 +39,7 @@ def load(request):
     })
 
 @requires_csrf_token
-#@login_required
+@login_required
 def new(request, date, site):
     work = WorkHistory.objects.create(
         date=datetime.datetime.strptime(date, '%Y-%m-%d'),
@@ -54,7 +54,7 @@ def new(request, date, site):
     })
     
 @requires_csrf_token
-#@login_required
+@login_required
 def update(request, id):
     if request.method != 'POST':
         return JsonResponse({
@@ -101,7 +101,7 @@ def update(request, id):
     
 
 @requires_csrf_token
-#@login_required
+@login_required
 def workers(request):
     if (w := request.GET.get('site', None)) is None:
         all_workers = User.objects.filter(sitejoin__isnull=False).distinct().all()
