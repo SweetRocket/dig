@@ -5,6 +5,8 @@ def work_to_dict(work: WorkHistory):
     site = work.site
     if site is None:
         site = -1
+    else:
+        site = site.pk
     
     return {
         'id': work.pk,

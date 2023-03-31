@@ -38,7 +38,7 @@ def work_daily(request):
     site = SiteInfo.objects.all()
     
     data = {
-        'site': [ { 'id': s.pk, 'name': s.name } for s in site ]
+        'sites': [ { 'id': s.pk, 'name': s.name } for s in site ]
     }
 
     return render(request, 'dig_site/work_daily.html', data)

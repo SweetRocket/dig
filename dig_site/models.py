@@ -38,6 +38,9 @@ class SiteInfo(models.Model):
 
     # 면적
     area = models.FloatField()
+    
+    def __str__(self):
+        return self.name
 
 
 # 현장 참여

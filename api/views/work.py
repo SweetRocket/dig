@@ -45,7 +45,7 @@ def new(request, date, site):
         date=datetime.datetime.strptime(date, '%Y-%m-%d'),
         site=SiteInfo.objects.get(pk=site)
     )
-    
+
     work.save()
     
     return JsonResponse({
@@ -75,13 +75,16 @@ def update(request, id):
         work.zone = z
     
     if (w := data.get('workers', None)) is not None:
-        workers = [User.objects.get(pk=int(i)) for i in w]
-        work.workers.set(workers)
+        if len(w) == 0 or (len(w) == 1 and (w[0] == -1 or w[0] == '-1')):
+            work.workers.clear()
+        else:
+            workers = [User.objects.get(pk=int(i)) for i in w]
+            work.workers.set(workers)
     
     if (n := data.get('note', None)) is not None:
         work.note = n
     
-    if (i := data.get('images', None)) is not None:
+    if (i := data.get('image', None)) is not None:
         fmt, img = i.split(';base64,')
         ext = fmt.split('/')[-1]
         data = ContentFile(base64.b64decode(img), name=f'{id}.{ext}')
@@ -101,10 +104,13 @@ def update(request, id):
 #@login_required
 def workers(request):
     if (w := request.GET.get('site', None)) is None:
+        all_workers = User.objects.filter(sitejoin__isnull=False).distinct().all()
         return JsonResponse({
-            'status': 'error',
-            'error': 'no site id provided'
-        })
+            'status': 'ok',
+            'result': [{
+                'id': w.pk,
+                'name': w.get_full_name()
+            } for w in all_workers]})
 
     try:
         site = SiteInfo.objects.get(pk=w)

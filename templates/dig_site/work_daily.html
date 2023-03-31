@@ -19,7 +19,7 @@
     <input type="date" />
     <select name="dig_site">
       <option value="-1">현장 선택 안함</option>
-      {% for dig_site in dig_site_list %}
+      {% for dig_site in sites %}
         <option value="{{ dig_site.id }}">{{ dig_site.name }}</option>
       {% endfor %}
     </select>
@@ -185,7 +185,7 @@
 
                   const data = {
                       zone,
-                      workers,
+                      workers: workers.map(worker => parseInt(worker, 10)),
                       note,
                       image: uploadImage,
                   }
@@ -199,7 +199,7 @@
                       mode: 'same-origin',
                       body: JSON.stringify(data),
                   }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result ).then(data => {
-                      document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.name, data.images, data.note, data.workers);
+                      document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.zone, data.images, data.note, data.workers);
                       enableUploadButton(elem);
                   })
 
@@ -234,7 +234,7 @@
           }
 
           const table = document.querySelector('#work tbody');
-          table.innerHTML = data.result.map(item => buildItemTag(item.id, item.name, item.images, item.note, item.workers)).join('');
+          table.innerHTML = data.result.map(item => buildItemTag(item.id, item.zone, item.images, item.note, item.workers)).join('');
       })
   }
 
@@ -243,7 +243,7 @@
     const site = document.querySelector('#work-info select[name="dig_site"]').value;
     const url = buildQueryParams("{% url 'api:work:workers' %}", { site: site === '-1' ? null : site });
 
-    const _workers = await fetch(url, {
+    const workers = await fetch(url, {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrf,
@@ -251,8 +251,8 @@
       mode: 'same-origin',
     }).catch(err => console.log(err)).then(res => res.json()).then(data => data?.result ?? [] );
     
+    workerList = [{ id: -1, name: '선택안함' }, ...workers.map(worker => ({ id: worker.id, name: worker.name }))];
 
-    workers = _workers.map(worker => ({ id: worker.id, name: worker.name }));
     return workers
   }
 
@@ -275,7 +275,8 @@
           return;
       }
       
-      const url = `{% url 'api:work:new' '__date__' 0 %}`.replace('__date__', date).replace('0', site)
+      const url = "{% url 'api:work:new' '__date__' 1234567890 %}".replace('__date__', date).replace('1234567890', site)
+      console.log(url)
 
       fetch(url, {
           method: 'POST',
@@ -289,14 +290,15 @@
           }),
       }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(data => {
           console.log(data);
-          table.innerHTML += buildItemTag(data.id, data.name, data.images, data.note, data.workers);
+          table.innerHTML += buildItemTag(data.id, data.zone, data.images, data.note, data.workers);
       })
   }
 
   // {% comment %} 페이지 로드시 실행 {% endcomment %}
-  (() => {
+  (async () => {
     document.querySelector('#work-info input[type="date"]').valueAsDate = new Date();
 
+    await loadWorkers();
     loadData(document.querySelector('#work-info'));
   })();
   {% endblock %}

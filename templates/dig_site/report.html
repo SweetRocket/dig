@@ -148,21 +148,25 @@
   </form>
 </div>
 
-<div class="slider">
-  {% for report in reports %}
-  <div>
-    <a href="{{ report.url }}"
-      ><img
-        title="{{ report.name }}"
-        src="{% if report.image %}{{ report.image.image.url }}{% endif %}"
-    /></a>
+{% if reports %}
+  <div class="slider">
+    {% for report in reports %}
+    <div>
+      <a href="{{ report.url }}"
+        ><img
+          title="{{ report.name }}"
+          src="{% if report.image %}{{ report.image.image.url }}{% endif %}"
+      /></a>
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
+{% else %}
+  <p> 발굴 보고서가 없습니다. </p>
+{% endif %}
 {% endblock %}
 
 <script>
-      {% block end_script %}
+    {% block end_script %}
       $(document).ready(function(){
           $('.slider').bxSlider({
             mode: 'horizontal',  // 슬라이드 모드를 수평(horizontal)으로 설정합니다.
