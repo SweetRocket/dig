@@ -104,37 +104,37 @@
     </style>
     
 {% block content %}
-<divclass='menubar_search'>
-<form onsubmit="submit(this)">
+<div class='menubar_search'>
+<form onsubmit="submitSearch(this);return false;">
     <div class="dropdown">
-        <div class="select">
+        <div class="select" name="age">
             <span class="selected">시대</span>
             <div class="caret"></div>
         </div>
         <ul class="menu_report">
-            <!-- <li class ='active'>시대</li> -->
-            <li id="0" >구석기</li>
-            <li id="1" >신석기</li>
-            <li id="2" >청동기</li>
-            <li id="3" >철기</li>
+            <li>시대</li>
+            <li>구석기</li>
+            <li>신석기</li>
+            <li>청동기</li>
+            <li>철기</li>
         </ul>
     </div>
     <div class="dropdown">
-        <div class="select">
+        <div class="select" name="region">
             <span class="selected">지역</span>
             <div class="caret"></div>
         </div>
         <ul class="menu_report">
-            <li data="0">서울</li>
-            <li data="1">경기도</li>
-            <li data="2">강원도</li>
-            <li data="3">충천북도</li>
-            <li data="4">충천남도</li>
-            <li data="5">경상북도</li>
-            <li data="6">경상남도</li>
-            <li data="7">전라북도</li>
-            <li data="8">전라남도</li>
-            <li data="9">제주도</li>
+            <li>서울</li>
+            <li>경기도</li>
+            <li>강원도</li>
+            <li>충청북도</li>
+            <li>충청남도</li>
+            <li>경상북도</li>
+            <li>경상남도</li>
+            <li>전라북도</li>
+            <li>전라남도</li>
+            <li>제주도</li>
         </ul>
     </div>
     <!-- 여기까지 베타 -->
@@ -213,9 +213,75 @@ dropdowns.forEach(dropdown => {
     });
 });
 
-// TODO: FIXME: 이거 왜 안되는지 모르겠음 ㅠㅠ <- Copilot의 비명
-function submit(elem) {
+const ageObj = {
+    '시대': null,
+    '구석기': 0,
+    '신석기': 1,
+    '청동기': 2,
+    '철기': 3,
 }
 
+const regionObj = {
+    '지역': null,
+    '서울': 0,
+    '경기도': 1,
+    '강원도': 2,
+    '충청북도': 3,
+    '충청남도': 4,
+    '경상북도': 5,
+    '경상남도': 6,
+    '전라북도': 7,
+    '전라남도': 8,
+    '제주도': 9
+}
+
+
+function submitSearch(elem) {
+    const query = elem.querySelector('input[name=query]').value.trim();
+    const age = elem.querySelector('.select[name="age"] .selected').innerText;
+    const region = elem.querySelector('.select[name="region"] .selected').innerText;
+
+    const param = {
+        query: query.length > 0 ? query : null, 
+        age: ageObj[age], 
+        region: regionObj[region]
+    };
+
+    const url = new URL(window.location.href);
+
+    for (const key in param) {
+        if (param[key] !== null) {
+            url.searchParams.set(key, param[key]);
+        } else {
+            url.searchParams.delete(key);
+        }
+    }
+
+    window.location.href = url.href;
+}
+
+(() => {
+    const url = new URL(window.location.href);
+
+    const query = url.searchParams.get('query');
+    const age = url.searchParams.get('age');
+    const region = url.searchParams.get('region');
+
+    const queryElem = document.querySelector('input[name=query]');
+    const ageElem = document.querySelector('.select[name="age"] .selected');
+    const regionElem = document.querySelector('.select[name="region"] .selected');
+
+    if (query) {
+        queryElem.value = query;
+    }
+
+    if (age) {
+        ageElem.innerText = Object.keys(ageObj).find(key => ageObj[key] == age);
+    }
+
+    if (region) {
+        regionElem.innerText = Object.keys(regionObj).find(key => regionObj[key] == region);
+    }
+})();
     {% endblock %}
 </script>
