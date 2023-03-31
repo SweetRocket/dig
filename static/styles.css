@@ -13,16 +13,27 @@ body {
 
 /* 회원가입 */
 .wrapper {
-    background-color: #f2f2f2;
     width: 600px;
     height: 500px;
+    margin-top: 40px;
 }
 
 .signup_img {
     display: block;
     width: 200px;
     height: 200px;
+    margin-top: 50px;
+    margin-bottom: -50px;
 }
+
+.login_img {
+    display: block;
+    width: 200px;
+    height: 200px;
+    margin-top: 80px;
+    margin-bottom: -100px;
+}
+
 
 .empname_box {
     outline: none;

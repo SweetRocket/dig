@@ -26,16 +26,16 @@ class Profile(models.Model):
     PositionChoices = models.PositiveIntegerField(choices=PositionChoices.choices, default=PositionChoices.EMPLOYEE)
     
     # 나이
-    age = models.PositiveIntegerField()
+    age = models.PositiveIntegerField(default=0)
     
     # 연락처
-    phone_number = PhoneNumberField()
+    phone_number = PhoneNumberField(region='KR')
     
     # 주소
-    address = models.TextField()
+    address = models.TextField(blank=True)
     
     # 비상 연락처
-    emg_contact = PhoneNumberField()
+    emg_contact = PhoneNumberField(region='KR')
 
     def __str__(self):
         return self.user.username
