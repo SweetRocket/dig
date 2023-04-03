@@ -424,3 +424,11 @@ h4 {
     margin: 0 auto;
     box-sizing: border-box;
 }
+
+.col-3>h2 {
+    font-family: 'KimjungchulGothic-Bold';
+}
+
+.col-6>h2 {
+    font-family: 'KimjungchulGothic-Bold';
+}
