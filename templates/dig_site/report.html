@@ -108,57 +108,38 @@
 <div class="menubar_search">
   <form onsubmit="submitSearch(this);return false;">
     <div class="dropdown">
-        <div class="select">
-            <span class="selected">시대</span>
-            <div class="caret"></div>
-        </div>
-        <ul class="menu_report">
-            <li class ='active'>전체</li>
-            <li>선사</li>
-            <li>석기</li>
-            <li>청동기</li>
-            <li>철기</li>
-            <li>삼한</li>
-            <li>삼국</li>
-            <li>삼국:고구려</li>
-            <li>삼국:백제</li>
-            <li>삼국:신라</li>
-            <li>발해</li>
-            <li>통일신라</li>
-            <li>고려</li>
-            <li>조선</li>
-            <li>대한제국</li>
-            <li>일제강점기</li>
-            <li>시대미상</li>
-        </ul>
+      <div class="select" name="age">
+        <span class="selected">시대</span>
+        <div class="caret"></div>
+      </div>
+      <ul class="menu_report">
+        <li>시대</li>
+        <li>구석기</li>
+        <li>신석기</li>
+        <li>청동기</li>
+        <li>철기</li>
+      </ul>
     </div>
     <div class="dropdown">
-        <div class="select">
-            <span class="selected">지역</span>
-            <div class="caret"></div>
-        </div>
-        <ul class="menu_report">
-            <li class ='active'>전체</li>
-            <li>서울</li>
-            <li>부산</li>
-            <li>대구</li>
-            <li>인천</li>
-            <li>광주</li>
-            <li>대전</li>
-            <li>울산</li>
-            <li>세종</li>
-            <li>경기</li>
-            <li>강원</li>
-            <li>충북</li>
-            <li>충남</li>
-            <li>전북</li>
-            <li>전남</li>
-            <li>경북</li>
-            <li>경남</li>
-            <li>제주</li>
-            <li>전국일원</li>
-        </ul>
+      <div class="select" name="region">
+        <span class="selected">지역</span>
+        <div class="caret"></div>
+      </div>
+      <ul class="menu_report">
+        <li>지역</li>
+        <li>서울</li>
+        <li>경기도</li>
+        <li>강원도</li>
+        <li>충청북도</li>
+        <li>충청남도</li>
+        <li>경상북도</li>
+        <li>경상남도</li>
+        <li>전라북도</li>
+        <li>전라남도</li>
+        <li>제주도</li>
+      </ul>
     </div>
+    <!-- 여기까지 베타 -->
     <!-- 검색엔진 -->
     <div class="searchfield">
       <input type="text" name="query" placeholder="검색어를 입력하세요" />
@@ -167,45 +148,21 @@
   </form>
 </div>
 
-    <div class="slider">
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=85385&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (1).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82177&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (2).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=84845&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (3).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82180&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (4).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82465&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (5).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82004&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (6).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82188&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (7).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82706&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (8).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82353&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (9).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=82716&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (10).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=85412&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (11).jpg' %}"></a></div>
-        <div><a
-                href="https://www.cha.go.kr/cop/bbs/selectBoardArticle.do?nttId=85266&bbsId=BBSMSTR_1021&pageIndex=1&pageUnit=10&searchCnd"><img
-                    src="{% static '보고서_간행물 (12).jpg' %}"></a></div>
+{% if reports %}
+  <div class="slider">
+    {% for report in reports %}
+    <div>
+      <a href="{{ report.url }}"
+        ><img
+          title="{{ report.name }}"
+          src="{% if report.image %}{{ report.image.image.url }}{% endif %}"
+      /></a>
     </div>
-
+    {% endfor %}
+  </div>
+{% else %}
+  <p style="text-align:center"> 발굴 보고서가 없습니다. </p>
+{% endif %}
 {% endblock %}
 
 <script>
@@ -289,20 +246,24 @@
       '제주도': 9
   }
 
-
+  // {% commnet %} 검색 {% endcomment %}
   function submitSearch(elem) {
+      // {% comment %} 검색 데이터 {% endcomment %}
       const query = elem.querySelector('input[name=query]').value.trim();
       const age = elem.querySelector('.select[name="age"] .selected').innerText;
       const region = elem.querySelector('.select[name="region"] .selected').innerText;
 
+      // {% comment %} 검색 데이터를 url param에 추가 {% endcomment %}
       const param = {
           query: query.length > 0 ? query : null,
           age: ageObj[age],
           region: regionObj[region]
       };
 
+      // {% comment %} 현 주소를 기반으로 url 변경 {% endcomment %}
       const url = new URL(window.location.href);
 
+      // {% comment %} url param을 변경 {% endcomment %}
       for (const key in param) {
           if (param[key] !== null) {
               url.searchParams.set(key, param[key]);
@@ -311,9 +272,11 @@
           }
       }
 
+      // {% comment %} url 변경 {% endcomment %}
       window.location.href = url.href;
   }
 
+  // {% comment %} 검색 데이터를 url param에서 가져와서 검색창에 설정 {% endcomment %}
   (() => {
       const url = new URL(window.location.href);
 
