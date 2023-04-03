@@ -38,6 +38,9 @@ class SiteInfo(models.Model):
 
     # 면적
     area = models.FloatField()
+    
+    def __str__(self):
+        return self.name
 
 
 # 현장 참여
@@ -94,3 +97,12 @@ class Report(models.Model):
     
     # 보고서 링크
     url = models.URLField()
+
+    def get_age_display(self):
+        return AgeChoices(self.age).label
+    
+    def get_region_display(self):
+        return RegionChoices(self.region).label
+
+    def __str__(self):
+        return f'{self.name} - {self.get_age_display()} / {self.get_region_display()}'

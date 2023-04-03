@@ -7,7 +7,7 @@ from django.core.files.base import ContentFile
 
 
 from common.models import Image
-from dig_site.models import SiteInfo, WorkHistory
+from dig_site.models import SiteInfo, SiteJoin, WorkHistory
 
 from ..utils import work_to_dict
 from django.contrib.auth.models import User
@@ -17,7 +17,7 @@ import datetime
 import json
 
 @requires_csrf_token
-#@login_required
+@login_required
 def load(request):
     date = request.GET.get('date', datetime.datetime.now().strftime('%Y-%m-%d'))
     site = request.GET.get('site', None)
@@ -39,13 +39,13 @@ def load(request):
     })
 
 @requires_csrf_token
-#@login_required
+@login_required
 def new(request, date, site):
     work = WorkHistory.objects.create(
         date=datetime.datetime.strptime(date, '%Y-%m-%d'),
         site=SiteInfo.objects.get(pk=site)
     )
-    
+
     work.save()
     
     return JsonResponse({
@@ -54,7 +54,7 @@ def new(request, date, site):
     })
     
 @requires_csrf_token
-#@login_required
+@login_required
 def update(request, id):
     if request.method != 'POST':
         return JsonResponse({
@@ -75,13 +75,16 @@ def update(request, id):
         work.zone = z
     
     if (w := data.get('workers', None)) is not None:
-        workers = [User.objects.get(pk=int(i)) for i in w]
-        work.workers.set(workers)
+        if len(w) == 0 or (len(w) == 1 and (w[0] == -1 or w[0] == '-1')):
+            work.workers.clear()
+        else:
+            workers = [User.objects.get(pk=int(i)) for i in w]
+            work.workers.set(workers)
     
     if (n := data.get('note', None)) is not None:
         work.note = n
     
-    if (i := data.get('images', None)) is not None:
+    if (i := data.get('image', None)) is not None:
         fmt, img = i.split(';base64,')
         ext = fmt.split('/')[-1]
         data = ContentFile(base64.b64decode(img), name=f'{id}.{ext}')
@@ -97,3 +100,44 @@ def update(request, id):
     })
     
 
+@requires_csrf_token
+@login_required
+def workers(request):
+    if (w := request.GET.get('site', None)) is None:
+        all_workers = User.objects.filter(sitejoin__isnull=False).distinct().all()
+        return JsonResponse({
+            'status': 'ok',
+            'result': [{
+                'id': w.pk,
+                'name': w.get_full_name()
+            } for w in all_workers]})
+
+    try:
+        site = SiteInfo.objects.get(pk=w)
+    except:
+        return JsonResponse({
+            'status': 'error',
+            'error': 'invalid site id'
+        })
+    
+    site_join = SiteJoin.objects.filter(site=site).select_related('user').all()
+        
+    workers = [{
+        'id': sj.user.pk,
+        'name': sj.user.get_full_name()
+    } for sj in site_join ]
+    
+    return JsonResponse({
+        'status': 'ok',
+        'result': workers
+    })
+
+@requires_csrf_token
+@login_required
+def recent(request):
+    works = WorkHistory.objects.all().order_by('-updated_at')[:10]
+    
+    return JsonResponse({
+        'status': 'ok',
+        'result': [work_to_dict(w) for w in works]
+    })

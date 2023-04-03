@@ -17,7 +17,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     
     # 직원 모델과의 1:1, Cascade 관계 설정
-    emp = models.OneToOneField("Employee", on_delete=models.CASCADE)
+    emp = models.OneToOneField("Employee", on_delete=models.CASCADE, null=True, blank=True)
 
     # 성별
     sex = models.CharField(max_length=32)
@@ -29,13 +29,13 @@ class Profile(models.Model):
     age = models.PositiveIntegerField(default=0)
     
     # 연락처
-    phone_number = PhoneNumberField(region='KR')
+    phone_number = PhoneNumberField(region='KR') # type: ignore
     
     # 주소
     address = models.TextField(blank=True)
     
     # 비상 연락처
-    emg_contact = PhoneNumberField(region='KR')
+    emg_contact = PhoneNumberField(region='KR') # type: ignore
 
     def __str__(self):
         return self.user.username
@@ -66,6 +66,9 @@ class Log(models.Model):
 class Image(models.Model):
     # 이미지 파일
     image = models.ImageField(upload_to='images/')
+    
+    def __str__(self):
+        return self.image.name
 
 
 # 영상 기기

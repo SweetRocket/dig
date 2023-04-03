@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'KimjungchulGothic-Bold';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2302_01@1.0/KimjungchulGothic-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+}
+
+
 /* main page */
 * {
     margin: 0 auto;
@@ -7,8 +15,13 @@
 body {
     background: #F0F0F0;
    /* background-image: url("background.jpg"); */
- 
 
+}
+
+.pagetitle {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-family: 'KimjungchulGothic-Bold';
 }
 
 /* 회원가입 */
@@ -152,9 +165,8 @@ body {
     border: none;
     font-weight: bold;
     cursor: pointer;
-    margin-left: 30px;
-
     border-radius: 10px;
+    margin-right: 80px;
 }
 
 /* 네브바 */
@@ -277,44 +289,18 @@ footer .logo {
 }
 
 
-/* 날씨용 css */
 
-.flex-container {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-
-}
-
-.weathertoday {
-    padding-left: 50px;
-    padding-right: 50px;
-    padding-bottom: 50px;
-}
-
-.weatherforecast {
-    margin-left: 350px;
-    margin-right: 300px;
-}
-
-h4 {
-    text-align: center;
-}
-
-
-
-* {
-    margin: 0 auto;
-    box-sizing: border-box;
-}
 
 /*********작업 일지********/
+
+
+
 #work-info {
     margin-left: 4%;
     font-size: 100px;
     width: 20%;
     height: 30px;
-    float: left;
+
 }
 
 #work-info>form {
@@ -325,19 +311,28 @@ h4 {
 
 #work {
     margin: 0 auto;
-    margin-top: 30px;
+    padding-top: 30px;
     width: 80%;
-    border: 1px solid #444444;
     border-collapse: collapse;
 }
 
-.tth,
-td {
-    border: 1px solid #444444;
+td>.inputbt{
+    border: none;
+}
+
+.work_tr>th, .work_th>td {
+    border: 1px solid #444444
+}
+
+#work>th, #work>td {
     padding: 10px;
 }
 
-.ttd>form {
+.work_th {
+    text-align: center;
+}
+
+#work>td>form {
     width: 200px;
     text-align: center;
 }
@@ -352,13 +347,22 @@ label {
     margin: 0 auto;
     margin-left: 10%;
     width: 80%;
-    border: 1px solid #444444;
     border-collapse: collapse;
 }
 
 .hang {
-    width: 80%;
-    margin-left: 154px;
+    width: 100%;
+    margin-top: 10px;
+    background-color: rgb(197, 197, 197);
+    border-radius: 8px;
+}
+
+td>.inputbt{
+    border: none;
+}
+
+.for_form>td{
+    margin: 20px;
 }
 
 /* 로그인 페이지 */
@@ -380,4 +384,43 @@ label {
 .password2_text {
     margin-right: 200px;
     font-weight: bold;
+}
+
+/* 날씨용 css */
+
+.flex-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+
+}
+
+.weathertoday {
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-bottom: 50px;
+}
+.weathertoday th,td {
+    border: none;
+}
+
+.weatherforecast {
+    margin-left: 350px;
+    margin-right: 300px;
+    border: none;
+}
+
+.weatherforecast th,td {
+    border: none;
+}
+
+h4 {
+    text-align: center;
+}
+
+
+
+* {
+    margin: 0 auto;
+    box-sizing: border-box;
 }

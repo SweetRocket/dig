@@ -13,48 +13,51 @@
 </style>
 
 {% block content %}
+<h3 class='pagetitle' style="text-align: center;">작업 일지</h3>
 <div id="work-info">
-  <form onChange="loadData(this)">
-    <input type="date" />
-    <select name="dig_site">
+  <form onChange="changeData(this)">
+    <table class='for_form'>
+      <tr>
+        <td style='padding:20px'>
+          <input type="date" />
+        </td>
+        <td>
+          <select name="dig_site">
       <option value="-1">현장 선택 안함</option>
-      {% for dig_site in dig_site_list %}
-      <option value="{{ dig_site.id }}">{{ dig_site.name }}</option>
+      {% for dig_site in sites %}
+        <option value="{{ dig_site.id }}">{{ dig_site.name }}</option>
       {% endfor %}
     </select>
+  </td>
+  </table>
   </form>
 </div>
+
 <br />
-<table id="work">
+<table id="work" style='margin-top:20px'>
   <thead>
-    <tr>
-      <th>유구</th>
-      <th>작업 근로자</th>
-      <th>출토 유물</th>
-      <th>특이사항</th>
+    <tr class='work_tr'>
+      <th class='work_th'>유구</th>
+      <th class='work_th'>작업 근로자</th>
+      <th class='work_th'>출토 유물</th>
+      <th class='work_th'>특이사항</th>
     </tr>
   </thead>
-  <tbody></tbody>
+  <tbody>
+  </tbody>
+  <tfoot><tr>
+    <td class='inputbt' colspan="4"><input class="hang" type="button" value="행추가" onclick="addNewRow()" /></td>
+  </tr></tfoot>
 </table>
-<input class="hang" type="button" value="행추가" onclick="addNewRow()" />
+
 
 {% csrf_token %}
 {% endblock %}
 
 <script>
   {% block end_script %}
-  // {% comment %} 유저 목록 django {% endcomment %}
-  const workerList = [
-    {
-      name: '선택안함',
-      id: '-1',
-    },{% for worker in workers %}
-    {
-        name: '{{ worker.name }}',
-        id: '{{ worker.id }}'
-    },{% endfor %}];
-
   const csrf = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+  let workerList = [];
 
   // {% comment %} 유저 목록 생성 {% endcomment %}
   function workerOptions(selectedList) {
@@ -75,8 +78,9 @@
 
   // {% comment %} 새 작업자 선택 추가 {% endcomment %}
   function buildWorkerSelect(index, selectedWorkers = []) {
+    const site = document.querySelector('select[name="dig_site"]').value;
     return `
-      <select title="worker-${index}" name="worker-${index}">
+      <select title="worker-${index}" name="worker-${index}" ${ site === '-1' ? "disabled" : "" }>
         ${workerOptions(selectedWorkers)}
       </select>
     `;
@@ -193,7 +197,7 @@
 
                   const data = {
                       zone,
-                      workers,
+                      workers: workers.map(worker => parseInt(worker, 10)),
                       note,
                       image: uploadImage,
                   }
@@ -207,7 +211,7 @@
                       mode: 'same-origin',
                       body: JSON.stringify(data),
                   }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result ).then(data => {
-                      document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.name, data.images, data.note, data.workers);
+                      document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.zone, data.images, data.note, data.workers);
                       enableUploadButton(elem);
                   })
 
@@ -242,9 +246,35 @@
           }
 
           const table = document.querySelector('#work tbody');
-          table.innerHTML = data.result.map(item => buildItemTag(item.id, item.name, item.images, item.note, item.workers)).join('');
+          table.innerHTML = data.result.map(item => buildItemTag(item.id, item.zone, item.images, item.note, item.workers)).join('');
       })
   }
+
+  // {% comment %} worker 로드 {% endcomment %}
+  async function loadWorkers() {
+    const site = document.querySelector('#work-info select[name="dig_site"]').value;
+    const url = buildQueryParams("{% url 'api:work:workers' %}", { site: site === '-1' ? null : site });
+
+    const workers = await fetch(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf,
+      },
+      mode: 'same-origin',
+    }).catch(err => console.log(err)).then(res => res.json()).then(data => data?.result ?? [] );
+    
+    workerList = [{ id: -1, name: '선택안함' }, ...workers.map(worker => ({ id: worker.id, name: worker.name }))];
+
+    return workers
+  }
+
+
+  // {% comment %} 검색 설정 값 변경시{% endcomment %}
+  async function changeData(elem) {
+    await loadWorkers();
+    loadData(elem);
+  }
+
 
   // {% comment %} 새로운 행 추가 {% endcomment %}
   function addNewRow() {
@@ -257,7 +287,8 @@
           return;
       }
       
-      const url = `{% url 'api:work:new' '__date__' 0 %}`.replace('__date__', date).replace('0', site)
+      const url = "{% url 'api:work:new' '__date__' 1234567890 %}".replace('__date__', date).replace('1234567890', site)
+      console.log(url)
 
       fetch(url, {
           method: 'POST',
@@ -271,14 +302,15 @@
           }),
       }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(data => {
           console.log(data);
-          table.innerHTML += buildItemTag(data.id, data.name, data.images, data.note, data.workers);
+          table.innerHTML += buildItemTag(data.id, data.zone, data.images, data.note, data.workers);
       })
   }
 
   // {% comment %} 페이지 로드시 실행 {% endcomment %}
-  (() => {
+  (async () => {
     document.querySelector('#work-info input[type="date"]').valueAsDate = new Date();
 
+    await loadWorkers();
     loadData(document.querySelector('#work-info'));
   })();
   {% endblock %}
