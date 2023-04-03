@@ -1,8 +1,12 @@
+// 임시로 사용할 빈 함수
 function _emptyFunc() {
   return false;
 }
 
+// 웹 소켓 스트리밍 함수
 class WebSocketStreamer {
+
+  // 생성자
   constructor(url, img, log) {
     this.url = url;
 
@@ -12,6 +16,7 @@ class WebSocketStreamer {
     this.websocket = null;
   }
 
+  // 연결 끊기
   disconnect() {
     if (this.websocket != null) {
       this.websocket.close();
@@ -19,6 +24,7 @@ class WebSocketStreamer {
     }
   }
 
+  // 서버 연결
   connect() {
     if (this.websocket == null) {
       // 서버 연결
@@ -55,6 +61,7 @@ class WebSocketStreamer {
           return;
         }
 
+        // 함수 실행
         self.img_write("data:image/png;base64," + msg?.boxed_frame ?? "");
         self.log_write(detected, msg);
       };
