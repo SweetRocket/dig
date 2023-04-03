@@ -246,20 +246,24 @@
       '제주도': 9
   }
 
-
+  // {% commnet %} 검색 {% endcomment %}
   function submitSearch(elem) {
+      // {% comment %} 검색 데이터 {% endcomment %
       const query = elem.querySelector('input[name=query]').value.trim();
       const age = elem.querySelector('.select[name="age"] .selected').innerText;
       const region = elem.querySelector('.select[name="region"] .selected').innerText;
 
+      // {% comment %} 검색 데이터를 url param에 추가 {% endcomment %}
       const param = {
           query: query.length > 0 ? query : null,
           age: ageObj[age],
           region: regionObj[region]
       };
 
+      // {% comment %} 현 주소를 기반으로 url 변경 {% endcomment %}
       const url = new URL(window.location.href);
 
+      // {% comment %} url param을 변경 {% endcomment %}
       for (const key in param) {
           if (param[key] !== null) {
               url.searchParams.set(key, param[key]);
@@ -268,9 +272,11 @@
           }
       }
 
+      // {% comment %} url 변경 {% endcomment %}
       window.location.href = url.href;
   }
 
+  // {% comment %} 검색 데이터를 url param에서 가져와서 검색창에 설정 {% endcomment %}
   (() => {
       const url = new URL(window.location.href);
 

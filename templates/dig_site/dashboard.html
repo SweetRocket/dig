@@ -58,6 +58,7 @@
 
 <script>
   {% block end_script %}
+    // {% comment %} 작업 일지 업데이트 함수 {% endcomment %}
     function updateWorkHistory() {
       fetch("{% url 'api:work:recent' %}")
         .then(response => response.json())
@@ -78,30 +79,40 @@
         })
     }
 
+    // {% comment %} 웹소켓 스트리밍 URL {% endcomment %}
+    // {% comment %} FIXME: 하드코딩 되어있음 {% endcomment %}
     const stereamUrl = "ws://localhost:5000/feed/0";
 
-   
+    // {% comment %} 로그 테이블 {% endcomment %}
     const logTable = document.querySelector('#detection-log tbody');
 
+    // {% comment %} 이미지 출력 함수 {% endcomment %}
     const img_write = (img) => {
       document.querySelector('#detection').src = img;
     }
   
+    // {% comment %} 로그 기록 함수 {% endcomment %}
     const log_write = async (detected, msg) => {
+      // {% comment %} 24시간 시간이 필요하여 영국 표시방식을 가져옴 {% endcomment %}
       const time = new Date().toLocaleTimeString("en-GB");
+
       detected.forEach((detection) => {
+        // {% comment %} NO, handmotion만 로그에 기록 {% endcomment %}
         if (
           !(detection.cls_name.includes("NO") || detection.model == "handmotion")
         ) {
           return;
         }
       
+        // {% comment %} 80% 이상의 확률만 로그에 기록 {% endcomment %}
         if (detection.confidence < 0.8) {
           return;
         }
 
+        // {% comment %} 소수점 2자리까지 표시 {% endcomment %}
         const confidence = detection.confidence.toFixed(2);
 
+        // {% comment %} 로그 테이블에 로그 추가 {% endcomment %}
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${time}</td>
@@ -112,15 +123,21 @@
         logTable.prepend(row);
       });
   
+      // {% comment %} 로그 최대 10개까지만 보여줌 {% endcomment %}
       while (logTable.childElementCount > 10) {
         logTable.removeChild(logTable.lastChild);
       }
     }
 
+    // {% comment %} 페이지 로드 시 실행함 {% endcomment %
     (() => {
+      // {% comment %} 최근 업데이트 초기화 {% endcomment %}
       updateWorkHistory();
+      // {% comment %} 5초마다 업데이트 {% endcomment
       setInterval(updateWorkHistory, 5000)
 
+      // {% comment %} 웹소켓 스트리밍 {% endcomment %}
+      // {% comment %} static/wss.js 참조 {% endcomment %}
       const streamer = new WebSocketStreamer(stereamUrl, img_write, log_write);
       streamer.connect();
     })();
