@@ -171,13 +171,14 @@
   function updateChange(id) {
       const elem = document.querySelector(`tr[data-id="${id}"]`);
 
+      // {% comment %} 데이터 elements {% endcomment %}
       const _zone = elem.querySelector('input[name="zone"]').value;
       const _note = elem.querySelector('input[name="note"]').value;
       const _image = elem.querySelector('input[name="chooseFile"]');
       const _workers = [...elem.querySelectorAll('select[name^="worker-"]')]
                           .map(worker => worker.value);
   
-      // {% comment %} 데이터가 1초동안 변경이 없는 경우 업로드드 {% endcomment %}
+      // {% comment %} 데이터가 1초동안 변경이 없는 경우 업로드 {% endcomment %}
       setTimeout(
           async () => {
               const zone = elem.querySelector('input[name="zone"]').value;
@@ -186,15 +187,22 @@
               const workers = [...elem.querySelectorAll('select[name^="worker-"]')]
                                   .map(worker => worker.value);
 
+              // {% comment %} 데이터가 변경되지 않은 경우 {% endcomment %}
               if (zone === _zone && _.isEqual(workers, _workers) && note === _note && image.value === _image.value) {
                   let uploadImage = null;
-                  console.log('send to server', id, zone, workers, note, image);
+
+                  // {% comment %} 이미지가 있는 경우 {% endcomment %}
                   if ((image?.files?.length ?? 0 > 0) && (image.value !== '')) {
+                    // {% comment %} 이미지 업로드 버튼 비활성화 {% endcomment %}
                     disableUploadButton(elem);
+                    // {% comment %} 이미지 읽음 {% endcomment %}
                     uploadImage = await readFileInput(image);
+
+                    // {% comment %} 초기화 {% endcomment %}
                     image.value = '';
                   }
 
+                  // {% comment %} 데이터 전송 전 field 설정 {% endcomment %}
                   const data = {
                       zone,
                       workers: workers.map(worker => parseInt(worker, 10)),
@@ -202,6 +210,7 @@
                       image: uploadImage,
                   }
 
+                  // {% comment %} 데이터 전송 {% endcomment %}
                   fetch(`{% url 'api:work:update' 0 %}`.replace('0', id), {
                       method: 'POST',
                       headers: {
@@ -211,7 +220,9 @@
                       mode: 'same-origin',
                       body: JSON.stringify(data),
                   }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result ).then(data => {
+                      // {% comment %} 데이터 전송 후 아이템 업데이트 {% endcomment %
                       document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.zone, data.images, data.note, data.workers);
+                      // {% comment %} 이미지 업로드 버튼 활성화 {% endcomment %}
                       enableUploadButton(elem);
                   })
 
@@ -269,7 +280,7 @@
   }
 
 
-  // {% comment %} 검색 설정 값 변경시{% endcomment %}
+  // {% comment %} 검색 설정 값 변경시 {% endcomment %}
   async function changeData(elem) {
     await loadWorkers();
     loadData(elem);

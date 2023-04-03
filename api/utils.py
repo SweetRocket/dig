@@ -2,7 +2,7 @@ from dig_site.models import WorkHistory
 
 
 def work_to_dict(work: WorkHistory):
-    site = work.site
+    site = work.site # type: ignore
     if site is None:
         site = -1
     else:
