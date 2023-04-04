@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 import base64
 import datetime
 import json
+import random
 
 
 @requires_csrf_token
@@ -124,8 +125,15 @@ def update(request, id):
         fmt, img = i.split(';base64,')
         ext = fmt.split('/')[-1]
 
+        # 중복 방지를 위해 랜덤한 id를 생성
+        rand_id = random.randint(0, 1000000000)
+        rand_id = f'{rand_id:010d}'
+        
+        # 파일명
+        name = f'{id}_{rand_id}.{ext}'
+
         # 디코딩하여 image를 생성
-        data = ContentFile(base64.b64decode(img), name=f'{id}.{ext}')
+        data = ContentFile(base64.b64decode(img), name=name)
 
         # 해당 image를 필드에 추가
         image = Image.objects.create(image=data)
