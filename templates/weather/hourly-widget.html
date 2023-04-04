@@ -75,23 +75,43 @@
           <tr>
             <td />
             <td>
-              <img class="weather-icon" id="weather-icon-1" src="{% static 'weather/wui/unknown.svg' %}" />
+              <img
+                class="weather-icon"
+                id="weather-icon-1"
+                src="{% static 'weather/wui/unknown.svg' %}"
+              />
               <p id="weather-status-1">정보없음</p>
             </td>
             <td>
-              <img class="weather-icon" id="weather-icon-2" src="{% static 'weather/wui/unknown.svg' %}" />
+              <img
+                class="weather-icon"
+                id="weather-icon-2"
+                src="{% static 'weather/wui/unknown.svg' %}"
+              />
               <p id="weather-status-2">정보없음</p>
             </td>
             <td>
-              <img class="weather-icon" id="weather-icon-3" src="{% static 'weather/wui/unknown.svg' %}" />
+              <img
+                class="weather-icon"
+                id="weather-icon-3"
+                src="{% static 'weather/wui/unknown.svg' %}"
+              />
               <p id="weather-status-3">정보없음</p>
             </td>
             <td>
-              <img class="weather-icon" id="weather-icon-4" src="{% static 'weather/wui/unknown.svg' %}" />
+              <img
+                class="weather-icon"
+                id="weather-icon-4"
+                src="{% static 'weather/wui/unknown.svg' %}"
+              />
               <p id="weather-status-4">정보없음</p>
             </td>
             <td>
-              <img class="weather-icon" id="weather-icon-5" src="{% static 'weather/wui/unknown.svg' %}" />
+              <img
+                class="weather-icon"
+                id="weather-icon-5"
+                src="{% static 'weather/wui/unknown.svg' %}"
+              />
               <p id="weather-status-5">정보없음</p>
             </td>
           </tr>
@@ -137,146 +157,148 @@
   </table>
 </div>
 <script>
-  const icons = {
-    unknown: "{% static 'weather/wui/unknown.svg' %}",
-    clear: "{% static 'weather/wui/clear.svg' %}",
-    cloudy: "{% static 'weather/wui/cloudy.svg' %}",
-    fog: "{% static 'weather/wui/fog.svg' %}",
-    rain: "{% static 'weather/wui/rain.svg' %}",
-    snow: "{% static 'weather/wui/snow.svg' %}",
-    sleet: "{% static 'weather/wui/sleet.svg' %}",
-    changerain: "{% static 'weather/wui/changerain.svg' %}",
+  (() => {
+    const icons = {
+      unknown: "{% static 'weather/wui/unknown.svg' %}",
+      clear: "{% static 'weather/wui/clear.svg' %}",
+      cloudy: "{% static 'weather/wui/cloudy.svg' %}",
+      fog: "{% static 'weather/wui/fog.svg' %}",
+      rain: "{% static 'weather/wui/rain.svg' %}",
+      snow: "{% static 'weather/wui/snow.svg' %}",
+      sleet: "{% static 'weather/wui/sleet.svg' %}",
+      changerain: "{% static 'weather/wui/changerain.svg' %}",
 
-    humidity: "{% static 'weather/mat/humidity.svg' %}",
-    umbrella: "{% static 'weather/mat/umbrella.svg' %}",
-    wind: "{% static 'weather/mat/wind.svg' %}",
-  };
-
-  const setWeather = (id, data) => {
-    const icon = document.getElementById(`weather-icon-${id}`);
-    const status = document.getElementById(`weather-status-${id}`);
-    const temp = document.getElementById(`weather-temp-${id}`);
-
-    temp.innerText = data.temp;
-    icon.src = icons[data.icon];
-    status.innerText = data.status;
-
-    if (id === "current") {
-      const humidity = document.getElementById("weather-humidity");
-      const precip = document.getElementById("weather-precip");
-      const wind = document.getElementById("weather-wind");
-
-      humidity.innerText = data.humidity;
-      precip.innerText = data.precip;
-      wind.innerText = data.wind;
-
-      return;
-    }
-
-    const time = document.getElementById(`weather-time-${id}`);
-    const humidity = document.getElementById(`weather-humidity-${id}`);
-    time.innerText = data.time;
-    humidity.innerText = data.humidity;
-  };
-
-  const request_weather_api = async () => {
-    const response = await fetch("/api/weather/hourly");
-    return response.json();
-  };
-
-  const process = (data) => {
-    let icon = "unknown";
-    let status = "Unknown";
-
-    const sky = data.SKY;
-    const pty = data.PTY;
-
-    switch (sky) {
-      case 1:
-        icon = "clear";
-        status = "맑음";
-        break;
-      case 3:
-        icon = "cloudy";
-        status = "구름 많음";
-        break;
-      case 4:
-        icon = "fog";
-        status = "흐림";
-        break;
-    }
-
-    switch (pty) {
-      case 1:
-        icon = "rain";
-        status = "비";
-        break;
-      case 2:
-        icon = "chancerain";
-        status = "비/눈";
-        break;
-      case 3:
-        icon = "snow";
-        status = "눈";
-        break;
-      case 4:
-        icon = "rain";
-        status = "소나기";
-        break;
-      case 5:
-        icon = "chancerain";
-        status = "빗방울";
-        break;
-      case 6:
-        icon = "sleet";
-        status = "빗방울 눈날림";
-        break;
-      case 7:
-        icon = "sleet";
-        status = "눈날림";
-        break;
-    }
-
-    return {
-      icon: icon,
-      status: status,
-      temp: data.T1H,
-      humidity: data.REH,
-      precip: data.RN1 == "강수없음" ? "0" : data.RN1,
-      wind: data.WSD,
+      humidity: "{% static 'weather/mat/humidity.svg' %}",
+      umbrella: "{% static 'weather/mat/umbrella.svg' %}",
+      wind: "{% static 'weather/mat/wind.svg' %}",
     };
-  };
 
-  (async () => {
-    const weather_widget = document.getElementById("weather_widget");
-    const resp = await request_weather_api();
+    const setWeather = (id, data) => {
+      const icon = document.getElementById(`weather-icon-${id}`);
+      const status = document.getElementById(`weather-status-${id}`);
+      const temp = document.getElementById(`weather-temp-${id}`);
 
-    if (resp.status !== "ok") {
-      weather_widget.innerText = "Error";
-      return;
-    }
+      temp.innerText = data.temp;
+      icon.src = icons[data.icon];
+      status.innerText = data.status;
 
-    const result = Object.entries(resp.result);
-    result.sort((a, b) => {
-      const ak = a[0].replace("T", "");
-      const bk = b[0].replace("T", "");
+      if (id === "current") {
+        const humidity = document.getElementById("weather-humidity");
+        const precip = document.getElementById("weather-precip");
+        const wind = document.getElementById("weather-wind");
 
-      return parseInt(ak) - parseInt(bk);
-    });
+        humidity.innerText = data.humidity;
+        precip.innerText = data.precip;
+        wind.innerText = data.wind;
 
-    const current = result.shift();
-    setWeather("current", process(current[1]));
-    let i = 1;
-    for (const [key, value] of result) {
-      let time = key.split("T")[1];
-      time = time.slice(0, 2) + ":" + time.slice(2);
+        return;
+      }
 
-      setWeather(i, {
-        time,
-        ...process(value),
+      const time = document.getElementById(`weather-time-${id}`);
+      const humidity = document.getElementById(`weather-humidity-${id}`);
+      time.innerText = data.time;
+      humidity.innerText = data.humidity;
+    };
+
+    const request_weather_api = async () => {
+      const response = await fetch("/api/weather/hourly");
+      return response.json();
+    };
+
+    const process = (data) => {
+      let icon = "unknown";
+      let status = "Unknown";
+
+      const sky = data.SKY;
+      const pty = data.PTY;
+
+      switch (sky) {
+        case 1:
+          icon = "clear";
+          status = "맑음";
+          break;
+        case 3:
+          icon = "cloudy";
+          status = "구름 많음";
+          break;
+        case 4:
+          icon = "fog";
+          status = "흐림";
+          break;
+      }
+
+      switch (pty) {
+        case 1:
+          icon = "rain";
+          status = "비";
+          break;
+        case 2:
+          icon = "chancerain";
+          status = "비/눈";
+          break;
+        case 3:
+          icon = "snow";
+          status = "눈";
+          break;
+        case 4:
+          icon = "rain";
+          status = "소나기";
+          break;
+        case 5:
+          icon = "chancerain";
+          status = "빗방울";
+          break;
+        case 6:
+          icon = "sleet";
+          status = "빗방울 눈날림";
+          break;
+        case 7:
+          icon = "sleet";
+          status = "눈날림";
+          break;
+      }
+
+      return {
+        icon: icon,
+        status: status,
+        temp: data.T1H,
+        humidity: data.REH,
+        precip: data.RN1 == "강수없음" ? "0" : data.RN1,
+        wind: data.WSD,
+      };
+    };
+
+    (async () => {
+      const weather_widget = document.getElementById("weather-widget-hourly");
+      const resp = await request_weather_api();
+
+      if (resp.status !== "ok") {
+        weather_widget.innerText = "Error";
+        return;
+      }
+
+      const result = Object.entries(resp.result);
+      result.sort((a, b) => {
+        const ak = a[0].replace("T", "");
+        const bk = b[0].replace("T", "");
+
+        return parseInt(ak) - parseInt(bk);
       });
-      i += 1;
-    }
+
+      const current = result.shift();
+      setWeather("current", process(current[1]));
+      let i = 1;
+      for (const [key, value] of result) {
+        let time = key.split("T")[1];
+        time = time.slice(0, 2) + ":" + time.slice(2);
+
+        setWeather(i, {
+          time,
+          ...process(value),
+        });
+        i += 1;
+      }
+    })();
   })();
 </script>
 <style>
