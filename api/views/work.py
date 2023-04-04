@@ -2,14 +2,13 @@ from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
 from django.http import JsonResponse
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 
 
 from common.models import Image
 from dig_site.models import SiteInfo, SiteJoin, WorkHistory
 
-from ..utils import work_to_dict
+from ..utils import work_to_dict, login_required_json
 from django.contrib.auth.models import User
 
 import base64
@@ -18,7 +17,7 @@ import json
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def load(request):
     """
     작업 일지 데이터를 가져오는 API
@@ -52,7 +51,7 @@ def load(request):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def new(request, date, site):
     """
     새로운 작업 일지 데이터를 생성하는 API
@@ -75,7 +74,7 @@ def new(request, date, site):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def update(request, id):
     """
     작업 일지 데이터를 수정하는 API
@@ -143,7 +142,7 @@ def update(request, id):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def workers(request):
     """
     작업자 목록을 가져오는 API
@@ -187,7 +186,7 @@ def workers(request):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def recent(request):
     """
     최근 작업 일지 데이터를 가져오는 API
