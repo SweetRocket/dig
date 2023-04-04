@@ -7,11 +7,16 @@ function _emptyFunc() {
 class WebSocketStreamer {
 
   // 생성자
-  constructor(url, img, log) {
+  constructor(url, img, log, openFunc = null, errorFunc = null, closeFunc = null, messageFunc = null) {
     this.url = url;
 
     this.img_write = img;
     this.log_write = log;
+
+    this.onOpen = openFunc ?? _emptyFunc;
+    this.onError = errorFunc ?? _emptyFunc;
+    this.onClose = closeFunc ?? _emptyFunc;
+    this.onMessage = messageFunc ?? _emptyFunc;
 
     this.websocket = null;
   }
@@ -33,21 +38,27 @@ class WebSocketStreamer {
 
       // 서버 연결 상태
       this.websocket.onopen = function (event) {
-        this.onOpen(this, event);
+        self.onOpen(this, event);
       };
 
       // 서버 연결 종료
       this.websocket.onclose = function (event) {
-        this.onClose(this, event);
+        self.onClose(this, event);
       };
 
       // 서버 연결 에러
       this.websocket.onerror = function (event) {
-        this.onError(this, event);
+        self.onError(this, event);
       };
 
       // 서버로부터 메시지 수신
       this.websocket.onmessage = function (event) {
+        try {
+          self.onMessage(this, event);
+        } catch (err) {
+          console.error(err);
+        }
+
         // 서버로부터 받은 메시지를 JSON으로 파싱
         const msg = JSON.parse(event.data);
 
