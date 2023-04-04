@@ -22,7 +22,7 @@ class Command(BaseCommand):
     # handle 함수를 사용하여 명령어가 실행될 때 실행될 코드를 작성
     def handle(self, *args, **options):
         # 랜덤으로 현장 생성
-        for i in range(options['site']):
+        for i in range(1, options['max_site'] + 1):
             s, _ = SiteInfo.objects.get_or_create(
                 pk = i,
                 defaults={
