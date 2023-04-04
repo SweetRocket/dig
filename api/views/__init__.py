@@ -1,1 +1,1 @@
-from . import work, weather
+from . import work, weather, dashboard
