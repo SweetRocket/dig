@@ -1,6 +1,4 @@
-import argparse
 from django.core.management.base import BaseCommand, CommandError
-from django.utils import timezone
 from dig_site.models import Report, Image, AgeChoices, RegionChoices
 from django.core.files.base import ContentFile
 
@@ -37,7 +35,7 @@ class Command(BaseCommand):
         else:
             raise CommandError('Unsupported file type')
         
-        # 자체 인덱스 설정정
+        # 자체 인덱스 설정
         df.set_index('번호', inplace=True)
         
         # 등록일을 datetime 형식으로 변환
@@ -87,6 +85,7 @@ class Command(BaseCommand):
             
             # 이미지의 확장자를 가져옴
             ext = resp.headers['Content-Type'].split('/')[-1]
+            ext = ext.split(';')[0]
             
             # 파일명 설정
             img_name = f"report_{name.replace(' ', '_')}.{ext}"
