@@ -47,14 +47,14 @@ function buildQueryParams(url, params, ignoreUrlParams = false) {
     // 기존 url에 쿼리 파라미터와 새로운 파라미터를 합침
     params = { ...queryObj, ...params };
 
-    // 빈 값 제거
-    params = _.pickBy(params, (value) => {
-      return value !== undefined && value !== null && value !== "";
-    });
-
     // 기존 url을 query 파라미터를 제거한 url로 변경
     url = urls[0];
   }
+
+  // 빈 값 제거
+  params = _.pickBy(params, (value) => {
+    return value !== undefined && value !== null && value !== "";
+  });
 
   // 쿼리 파라미터로 변환
   const query = Object.keys(params)
