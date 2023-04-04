@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib import auth
+from django.core.paginator import Paginator
 
 from .models import SiteInfo, Report
 from django.contrib.auth.models import User
@@ -19,6 +20,9 @@ def weather(request):
     return render(request, 'dig_site/weather.html')
 
 def report(request):
+    # 파라미터에서 page를 가져옴
+    page = request.GET.get('page', 1)
+    
     # django 쿼리를 사용하여 데이터를 가져옴
     q = Q()
     
@@ -35,8 +39,14 @@ def report(request):
         q &= Q(name__icontains=s)
 
     # 가져온 데이터를 쿼리에 맞게 가져옴
-    reports = Report.objects.filter(q).all()
+    query_reports = Report.objects.filter(q).order_by('-pk').all()
+
+    # 페이지네이션 처리
+    paginator = Paginator(query_reports, 20)
     
+    # 페이지에 맞는 데이터를 가져옴
+    reports = paginator.get_page(page)
+
     # 가져온 데이터를 사용하여 렌더링
     return render(request, 'dig_site/report.html', {
         'reports': reports
