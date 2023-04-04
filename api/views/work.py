@@ -107,8 +107,13 @@ def update(request, id):
 
     # date가 있으면 date를 수정
     if (w := data.get('workers', None)) is not None:
-        # workers 가 비어있거나 -1 이면 모든 작업자를 삭제
-        if len(w) == 0 or (len(w) == 1 and (w[0] == -1 or w[0] == '-1')):
+        # workers에서 -1 필터링
+        w = list(set(map(int, w)))
+        if -1 in w:
+            w.remove(-1)
+        
+        # workers 가 없으면 모든 작업자 삭제
+        if len(w) == 0:
             work.workers.clear()
         # workers 가 있으면 해당하는 작업자만 추가
         else:
@@ -164,7 +169,7 @@ def workers(request):
             'status': 'ok',
             'result': [{
                 'id': w.pk,
-                'name': w.get_full_name()
+                'name': f'{w.last_name}{w.first_name}'
             } for w in all_workers]})
 
     # site 가 있으면 해당 site 에 참여한 작업자를 가져오는걸 시도
@@ -183,7 +188,7 @@ def workers(request):
     # 작업자 목록을 dict 형태로 변환
     workers = [{
         'id': sj.user.pk,
-        'name': sj.user.get_full_name()
+        'name': f'{sj.user.last_name}{sj.user.first_name}'
     } for sj in site_join]
 
     # dict 형태로 변환된 데이터를 json 형태로 반환

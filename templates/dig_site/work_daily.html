@@ -9,6 +9,9 @@
 
 <style>
   {% block head_style %}
+    #work-function {
+      content-align: right;
+    }
   {% endblock %}
 </style>
 
@@ -68,6 +71,7 @@
           .map(option => {
               // {% comment %} 만약 선택된 유저가 있다면 {% endcomment %}
               if (_.includes(selectedList, parseInt(option.split('"')[1], 10))) {
+                  console.log("HEY!")
                   return option.replace('">', '" selected>');
               }
 
@@ -88,7 +92,7 @@
 
   // {% comment %} 테이블 행 생성 {% endcomment %}
   function buildItemTag(id, name, images, note, selectedWorker) {
-      return `
+    return `
       <tr data-id="${id}">
           <td>
               <form onchange="updateChange(${id})">
@@ -101,7 +105,7 @@
                     // {% comment %} 선택된 유저가 없는 경우 {% endcomment %}
                     .filter(worker => worker !== -1)
                     // {% comment %} 선택된 유저를 select로 변환 {% endcomment %}
-                    .map((worker, index) => buildWorkerSelect(index, worker)).join('')}
+                    .map((worker, index) => buildWorkerSelect(index, [worker])).join('')}
                   ${buildWorkerSelect(selectedWorker.length)}
               </form>
           </td>
@@ -128,17 +132,18 @@
 
   // {% comment %} 작업자 선택시 새로운 작업자 선택 추가 {% endcomment %}
   function updateWorker(elem) {
-    // {% comment %} 선택된 작업자가 없는 경우 {% endcomment %}
-    if (elem.value === '-1') {
-      elem.remove();
-    }
+    const id = elem.parentElement.parentElement.dataset.id;
+    const select = elem.querySelector('select:last-child');
+    const selected = select.options[select.selectedIndex].value;
 
-    // {% comment %} 선택 가능한 작업자가 없는 경우 {% endcomment %}
-    if (elem.querySelectorAll('option[value="-1"]').length === 0) {
+    // {% comment %} 선택된 유저가 없는 경우 {% endcomment %}
+    if (selected === '-1') {
       return;
     }
 
-    elem.innerHTML += buildWorkerSelect(elem.querySelectorAll('select').length);
+    // {% comment %} 선택된 유저가 있는 경우 {% endcomment %}
+    const newSelect = buildWorkerSelect(elem.querySelectorAll('select').length);
+    elem.insertAdjacentHTML('beforeend', newSelect);
   }
 
   function prepareUpload(id) {
@@ -151,7 +156,6 @@
   }
 
   function disableUploadButton(elem) {
-    console.log(elem)
     const button = elem.querySelector('input[name="chooseFile"]');
     const label = elem.querySelector('label[for="chooseFile"]');
 
@@ -202,10 +206,13 @@
                     image.value = '';
                   }
 
+                  // {% comment %} 선택된 유저가 없는 경우 필터링 {% endcomment %}
+                  const selectedWorkers = workers.map(worker => parseInt(worker, 10)).filter(worker => worker !== -1);
+
                   // {% comment %} 데이터 전송 전 field 설정 {% endcomment %}
                   const data = {
                       zone,
-                      workers: workers.map(worker => parseInt(worker, 10)),
+                      workers: selectedWorkers,
                       note,
                       image: uploadImage,
                   }
@@ -299,7 +306,6 @@
       }
       
       const url = "{% url 'api:work:new' '__date__' 1234567890 %}".replace('__date__', date).replace('1234567890', site)
-      console.log(url)
 
       fetch(url, {
           method: 'POST',
