@@ -73,8 +73,13 @@ class Image(models.Model):
 
 # 영상 기기
 class VideoEquipment(models.Model):
+    # 영상 기기 이름
+    name = models.CharField(max_length=32)
     # 영상 기기 주소
     device_address = models.TextField(null=False, blank=False)
+    
+    def __str__(self):
+        return self.name
 
     
 # 유저 생성시 유저의 Profile도 생성 
