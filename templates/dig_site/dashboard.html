@@ -1,9 +1,9 @@
 {% extends 'base.html' %} {% load static %} {% block title %}상황판{% endblock%}
 {% block content %}
-<div class="container">
-  <!-- {% commnet %} 상단 메뉴 Tabs {% endcomment %} -->
-  <ul class="nav nav-tabs" id="equipment-list"></ul>
 
+<div class="container">
+  <!-- {% comment %} 상단 메뉴 Tabs {% endcomment %} -->
+  <ul class="nav nav-tabs" id="equipment-list"></ul>
   <div class="row">
     <div class="col-3">
       <h2>최근 업데이트</h2>
@@ -140,7 +140,7 @@
           data.result.forEach(equipment => {
             const row = document.createElement('li')
             row.innerHTML = `
-              <a class="nav-link" href="#" onclick="changeStream(this, "${equipment.device_address}")" %}">${equipment.name}</a>
+              <a class="nav-link" href="#" onclick="changeStream(this, '${equipment.device_address}')" %}">${equipment.name}</a>
             `
             videoEquipment.appendChild(row)
           })
@@ -167,19 +167,19 @@
     }
 
 
-    // {% comment %} 페이지 로드 시 실행함 {% endcomment %
-    (async () => {
+    // {% comment %} 페이지 로드 시 실행함 {% endcomment %}
+    (async() => {
       // {% comment %} 최근 업데이트 초기화 {% endcomment %}
       updateWorkHistory();
       // {% comment %} 5초마다 업데이트 {% endcomment
-      setInterval(updateWorkHistory, 5000)
+      setInterval(updateWorkHistory, 5000);
 
       // {% comment %} 장비 목록 로드 {% endcomment %}
-      await loadVideoEquipment()
+      await loadVideoEquipment();
 
       // {% comment %} 첫번째 장비로 스트리밍 시작 {% endcomment %}
-      const videoEquipment = document.querySelector('#equipment-list')
-      videoEquipment.querySelector('a').click()
+      const videoEquipment = document.querySelector('#equipment-list');
+      videoEquipment.querySelector('a')?.click();
     })();
   {% endblock %}
 </script>
