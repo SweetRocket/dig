@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger("cli")
 
 class Command(BaseCommand):
-    help = "Bulk create reports"
+    help = "Bulk create users"
     
     # add_argument 를 사용하여 명령어에 사용할 파라미터를 추가
     def add_arguments(self, parser) -> None:
