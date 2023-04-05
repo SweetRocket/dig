@@ -342,7 +342,7 @@ label {
     font-size: 1em;
 }
 
-#chooseFile {
+.chooseFile {
     visibility: hidden;
     margin: 0 auto;
     margin-left: 10%;
