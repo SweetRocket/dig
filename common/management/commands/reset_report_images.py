@@ -1,8 +1,6 @@
 from django.core.management.base import BaseCommand
 from dig_site.models import WorkHistory
 
-import pathlib
-
 import logging
 
 logger = logging.getLogger("cli")
