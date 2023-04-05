@@ -145,3 +145,4 @@ GitHub.sublime-settings
 *.csv
 *.xls
 *.xlsx
+jupyter/*.mp4
