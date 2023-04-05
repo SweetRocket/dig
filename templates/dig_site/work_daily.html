@@ -172,101 +172,98 @@
 
   // {% comment %} 데이터 변경 시 서버에 전송 {% endcomment %}
   function updateChange(id) {
-    console.log(id)
-      const elem = document.querySelector(`tr[data-id="${id}"]`);
-      console.log(elem)
+    const elem = document.querySelector(`tr[data-id="${id}"]`);
 
-      // {% comment %} 데이터 elements {% endcomment %}
-      const _zone = elem.querySelector('input[name="zone"]').value;
-      const _note = elem.querySelector('input[name="note"]').value;
-      const _image = elem.querySelector('input[type="file"]');
-      const _workers = [...elem.querySelectorAll('select[name^="worker-"]')]
+    // {% comment %} 데이터 elements {% endcomment %}
+    const _zone = elem.querySelector('input[name="zone"]').value;
+    const _note = elem.querySelector('input[name="note"]').value;
+    const _image = elem.querySelector('input[type="file"]');
+    const _workers = [...elem.querySelectorAll('select[name^="worker-"]')]
                           .map(worker => worker.value);
   
-      // {% comment %} 데이터가 1초동안 변경이 없는 경우 업로드 {% endcomment %}
-      setTimeout(
-          async () => {
-              const zone = elem.querySelector('input[name="zone"]').value;
-              const note = elem.querySelector('input[name="note"]').value;
-              const image = elem.querySelector('input[type="file"]');
-              const workers = [...elem.querySelectorAll('select[name^="worker-"]')]
-                                  .map(worker => worker.value);
+    // {% comment %} 데이터가 1초동안 변경이 없는 경우 업로드 {% endcomment %}
+    setTimeout(
+      async () => {
+        const zone = elem.querySelector('input[name="zone"]').value;
+        const note = elem.querySelector('input[name="note"]').value;
+        const image = elem.querySelector('input[type="file"]');
+        const workers = [...elem.querySelectorAll('select[name^="worker-"]')]
+                                .map(worker => worker.value);
 
-              // {% comment %} 데이터가 변경되지 않은 경우 {% endcomment %}
-              if (zone === _zone && _.isEqual(workers, _workers) && note === _note && image.value === _image.value) {
-                  let uploadImage = null;
+        // {% comment %} 데이터가 변경되지 않은 경우 {% endcomment %}
+        if (zone === _zone && _.isEqual(workers, _workers) && note === _note && image.value === _image.value) {
+          let uploadImage = null;
 
-                  // {% comment %} 이미지가 있는 경우 {% endcomment %}
-                  if ((image?.files?.length ?? 0 > 0) && (image.value !== '')) {
-                    // {% comment %} 이미지 업로드 버튼 비활성화 {% endcomment %}
-                    disableUploadButton(elem);
-                    // {% comment %} 이미지 읽음 {% endcomment %}
-                    uploadImage = await readFileInput(image);
+          // {% comment %} 이미지가 있는 경우 {% endcomment %}
+          if ((image?.files?.length ?? 0 > 0) && (image.value !== '')) {
+            // {% comment %} 이미지 업로드 버튼 비활성화 {% endcomment %}
+            disableUploadButton(elem);
+            // {% comment %} 이미지 읽음 {% endcomment %}
+            uploadImage = await readFileInput(image);
 
-                    // {% comment %} 초기화 {% endcomment %}
-                    image.value = '';
-                  }
+            // {% comment %} 초기화 {% endcomment %}
+            image.value = '';
+          }
 
-                  // {% comment %} 선택된 유저가 없는 경우 필터링 {% endcomment %}
-                  const selectedWorkers = workers.map(worker => parseInt(worker, 10)).filter(worker => worker !== -1);
+          // {% comment %} 선택된 유저가 없는 경우 필터링 {% endcomment %}
+          const selectedWorkers = workers.map(worker => parseInt(worker, 10)).filter(worker => worker !== -1);
 
-                  // {% comment %} 데이터 전송 전 field 설정 {% endcomment %}
-                  const data = {
-                      zone,
-                      workers: selectedWorkers,
-                      note,
-                      image: uploadImage,
-                  }
+          // {% comment %} 데이터 전송 전 field 설정 {% endcomment %}
+          const data = {
+            zone,
+            workers: selectedWorkers,
+            note,
+            image: uploadImage,
+          }
 
-                  // {% comment %} 데이터 전송 {% endcomment %}
-                  fetch(`{% url 'api:work:update' 0 %}`.replace('0', id), {
-                      method: 'POST',
-                      headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRFToken': csrf,
-                      },
-                      mode: 'same-origin',
-                      body: JSON.stringify(data),
-                  }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(item => {
-                      // {% comment %} 데이터 전송 후 아이템 업데이트 {% endcomment %}
-                      elem.outerHTML = buildItemTag(item.id, item.zone, item.images, item.note, item.workers);
-                      // {% comment %} 이미지 업로드 버튼 활성화 {% endcomment %}
-                      enableUploadButton(elem);
-                  })
-
-              }
-          },
-          1000
-      )
+          // {% comment %} 데이터 전송 {% endcomment %}
+          fetch(`{% url 'api:work:update' 0 %}`.replace('0', id), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrf,
+            },
+            mode: 'same-origin',
+            body: JSON.stringify(data),
+          }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(item => {
+            // {% comment %} 데이터 전송 후 아이템 업데이트 {% endcomment %}
+            elem.outerHTML = buildItemTag(item.id, item.zone, item.images, item.note, item.workers);
+            // {% comment %} 이미지 업로드 버튼 활성화 {% endcomment %}
+            enableUploadButton(elem);
+          })
+        }
+      },
+      1000
+    )
   }
 
   // {% comment %} 페이지 데이터 로드 {% endcomment %}
   function loadData(elem) {
-      const date = elem.querySelector('input[type="date"]').value;
-      const site = elem.querySelector('select[name="dig_site"]').value;
+    const date = elem.querySelector('input[type="date"]').value;
+    const site = elem.querySelector('select[name="dig_site"]').value;
 
-      const param = {
-          date,
-          site: site === '-1' ? null : site,
+    const param = {
+      date,
+      site: site === '-1' ? null : site,
+    }
+
+    const url = buildQueryParams("{% url 'api:work:load' %}", param);
+
+    fetch(url, {
+      headers:{
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf,
+      },
+      mode: 'same-origin',
+    }).catch(err => console.log(err)).then(res => res.json()).then(data => {
+      if (data?.status !== 'ok') {
+        console.log(data);
+        return;
       }
 
-      const url = buildQueryParams("{% url 'api:work:load' %}", param);
-
-      fetch(url, {
-          headers:{
-            'Content-Type': 'application/json',
-            'X-CSRFToken': csrf,
-          },
-          mode: 'same-origin',
-      }).catch(err => console.log(err)).then(res => res.json()).then(data => {
-          if (data?.status !== 'ok') {
-            console.log(data);
-            return;
-          }
-
-          const table = document.querySelector('#work tbody');
-          table.innerHTML = data.result.map(item => buildItemTag(item.id, item.zone, item.images, item.note, item.workers)).join('');
-      })
+      const table = document.querySelector('#work tbody');
+      table.innerHTML = data.result.map(item => buildItemTag(item.id, item.zone, item.images, item.note, item.workers)).join('');
+    })
   }
 
   // {% comment %} worker 로드 {% endcomment %}
@@ -297,30 +294,30 @@
 
   // {% comment %} 새로운 행 추가 {% endcomment %}
   function addNewRow() {
-      const table = document.querySelector('#work tbody');
-      const date = document.querySelector('#work-info input[type="date"]').value;
-      const site = document.querySelector('#work-info select[name="dig_site"]').value;
+    const table = document.querySelector('#work tbody');
+    const date = document.querySelector('#work-info input[type="date"]').value;
+    const site = document.querySelector('#work-info select[name="dig_site"]').value;
 
-      if (site === '-1') {
-          alert('현장을 선택해주세요.');
-          return;
-      }
+    if (site === '-1') {
+      alert('현장을 선택해주세요.');
+      return;
+    }
       
-      const url = "{% url 'api:work:new' '__date__' 1234567890 %}".replace('__date__', date).replace('1234567890', site)
+    const url = "{% url 'api:work:new' '__date__' 1234567890 %}".replace('__date__', date).replace('1234567890', site)
 
-      fetch(url, {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrf,
-          },
-          mode: 'same-origin',
-          body: JSON.stringify({
-              date
-          }),
-      }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(data => {
-          table.innerHTML += buildItemTag(data.id, data.zone, data.images, data.note, data.workers);
-      })
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrf,
+      },
+      mode: 'same-origin',
+      body: JSON.stringify({
+        date
+      }),
+    }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(data => {
+        table.innerHTML += buildItemTag(data.id, data.zone, data.images, data.note, data.workers);
+    })
   }
 
   // {% comment %} 페이지 로드시 실행 {% endcomment %}
