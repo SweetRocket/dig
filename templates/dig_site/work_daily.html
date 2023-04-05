@@ -71,7 +71,6 @@
           .map(option => {
               // {% comment %} 만약 선택된 유저가 있다면 {% endcomment %}
               if (_.includes(selectedList, parseInt(option.split('"')[1], 10))) {
-                  console.log("HEY!")
                   return option.replace('">', '" selected>');
               }
 
@@ -95,12 +94,12 @@
     return `
       <tr data-id="${id}">
           <td>
-              <form onchange="updateChange(${id})">
+              <form id="zone-${id}" onchange="updateChange(${id})">
                   <input type="text" name="zone" value="${name}">
               </form>
           </td>
           <td>
-              <form name="worker-list" onchange="updateWorker(this);updateChange(${id})">
+              <form id="worker-list-${id}" name="worker-list" onchange="updateWorker(this);updateChange(${id})">
                   ${selectedWorker
                     // {% comment %} 선택된 유저가 없는 경우 {% endcomment %}
                     .filter(worker => worker !== -1)
@@ -110,20 +109,20 @@
               </form>
           </td>
           <td>
-              <form onchange="updateChange(${id})">
+              <form id="images-${id}" onchange="prepareUpload(${id});updateChange(${id})">
                   <div class="work_images">
                       ${images.map(image => `<img src="${image}" alt="image" width="100" height="100">`).join('')}
                   </div>
                   <div class="button">
-                      <label for="chooseFile">
+                      <label for="chooseFile-${id}">
                           이미지 추가+
                       </label>
                   </div>
-                  <input type="file" id="chooseFile" name="chooseFile" accept="image/*" onchange="prepareUpload(${id})">
+                  <input type="file" class="chooseFile" id="chooseFile-${id}" name="chooseFile-${id}" accept="image/*">
               </form>
           </td>
           <td>
-              <form onchange="updateChange(${id})">
+              <form id="note-${id}" onchange="updateChange(${id})">
                   <input type="text" name="note" value="${note}">
           </td>
       </tr>
@@ -148,24 +147,24 @@
 
   function prepareUpload(id) {
     const elem = document.querySelector(`tr[data-id="${id}"]`);
-    const button = elem.querySelector('input[name="chooseFile"]');
-    const label = elem.querySelector('label[for="chooseFile"]');
+    const button = elem.querySelector('input[type="file"]');
+    const label = elem.querySelector('div.button > label');
 
     button.disabled = true;
     label.innerText = '업로드 준비중...';
   }
 
   function disableUploadButton(elem) {
-    const button = elem.querySelector('input[name="chooseFile"]');
-    const label = elem.querySelector('label[for="chooseFile"]');
+    const button = elem.querySelector('input[type="file"]');
+    const label = elem.querySelector('div.button > label');
 
     button.disabled = true;
     label.innerText = '업로드 중...';
   }
 
   function enableUploadButton(elem) {
-    const button = elem.querySelector('input[name="chooseFile"]');
-    const label = elem.querySelector('label[for="chooseFile"]');
+    const button = elem.querySelector('input[type="file"]');
+    const label = elem.querySelector('div.button > label');
 
     button.disabled = false;
     label.innerText = '이미지 추가+';
@@ -173,12 +172,14 @@
 
   // {% comment %} 데이터 변경 시 서버에 전송 {% endcomment %}
   function updateChange(id) {
+    console.log(id)
       const elem = document.querySelector(`tr[data-id="${id}"]`);
+      console.log(elem)
 
       // {% comment %} 데이터 elements {% endcomment %}
       const _zone = elem.querySelector('input[name="zone"]').value;
       const _note = elem.querySelector('input[name="note"]').value;
-      const _image = elem.querySelector('input[name="chooseFile"]');
+      const _image = elem.querySelector('input[type="file"]');
       const _workers = [...elem.querySelectorAll('select[name^="worker-"]')]
                           .map(worker => worker.value);
   
@@ -187,7 +188,7 @@
           async () => {
               const zone = elem.querySelector('input[name="zone"]').value;
               const note = elem.querySelector('input[name="note"]').value;
-              const image = elem.querySelector('input[name="chooseFile"]');
+              const image = elem.querySelector('input[type="file"]');
               const workers = [...elem.querySelectorAll('select[name^="worker-"]')]
                                   .map(worker => worker.value);
 
@@ -226,9 +227,9 @@
                       },
                       mode: 'same-origin',
                       body: JSON.stringify(data),
-                  }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result ).then(data => {
-                      // {% comment %} 데이터 전송 후 아이템 업데이트 {% endcomment %
-                      document.querySelector(`tr[data-id="${id}"]`).innerHTML = buildItemTag(id, data.zone, data.images, data.note, data.workers);
+                  }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(item => {
+                      // {% comment %} 데이터 전송 후 아이템 업데이트 {% endcomment %}
+                      elem.outerHTML = buildItemTag(item.id, item.zone, item.images, item.note, item.workers);
                       // {% comment %} 이미지 업로드 버튼 활성화 {% endcomment %}
                       enableUploadButton(elem);
                   })
@@ -318,7 +319,6 @@
               date
           }),
       }).catch(err => console.log(err)).then(res => res.json()).then(data => data.result).then(data => {
-          console.log(data);
           table.innerHTML += buildItemTag(data.id, data.zone, data.images, data.note, data.workers);
       })
   }
