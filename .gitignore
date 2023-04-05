@@ -143,3 +143,5 @@ GitHub.sublime-settings
 # some #
 *.sqlite3
 *.csv
+*.xls
+*.xlsx

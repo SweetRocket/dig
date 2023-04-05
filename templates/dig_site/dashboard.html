@@ -1,7 +1,9 @@
 {% extends 'base.html' %} {% load static %} {% block title %}상황판{% endblock%}
-
 {% block content %}
+
 <div class="container">
+  <!-- {% comment %} 상단 메뉴 Tabs {% endcomment %} -->
+  <ul class="nav nav-tabs" id="equipment-list"></ul>
   <div class="row">
     <div class="col-3">
       <h2>최근 업데이트</h2>
@@ -24,16 +26,15 @@
     </div>
     <div class="col-6">
       <h2>영상</h2>
-        <div>
-          <img
-            src="{% static 'not_connected.png' %}"
-            alt="detection"
-            width="640px"
-            height="480px"
-            id="detection"
-          />
-        </div>
-      </h2>
+      <div>
+        <img
+          src="{% static 'not_connected.png' %}"
+          alt="detection"
+          width="640px"
+          height="480px"
+          id="detection"
+        />
+      </div>
     </div>
     <div class="col-3">
       <h2>Detection Log</h2>
@@ -47,8 +48,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
-          </tr>
+          <tr></tr>
         </tbody>
       </table>
     </div>
@@ -79,9 +79,8 @@
         })
     }
 
-    // {% comment %} 웹소켓 스트리밍 URL {% endcomment %}
-    // {% comment %} FIXME: 하드코딩 되어있음 {% endcomment %}
-    const stereamUrl = "ws://localhost:5000/feed/0";
+    // {% comment %} 웹소켓 스트리밍 {% endcomment %}
+    let streamer = null;
 
     // {% comment %} 로그 테이블 {% endcomment %}
     const logTable = document.querySelector('#detection-log tbody');
@@ -90,7 +89,7 @@
     const img_write = (img) => {
       document.querySelector('#detection').src = img;
     }
-  
+
     // {% comment %} 로그 기록 함수 {% endcomment %}
     const log_write = async (detected, msg) => {
       // {% comment %} 24시간 시간이 필요하여 영국 표시방식을 가져옴 {% endcomment %}
@@ -103,7 +102,7 @@
         ) {
           return;
         }
-      
+
         // {% comment %} 80% 이상의 확률만 로그에 기록 {% endcomment %}
         if (detection.confidence < 0.8) {
           return;
@@ -122,24 +121,65 @@
         `;
         logTable.prepend(row);
       });
-  
+
       // {% comment %} 로그 최대 10개까지만 보여줌 {% endcomment %}
       while (logTable.childElementCount > 10) {
         logTable.removeChild(logTable.lastChild);
       }
     }
 
-    // {% comment %} 페이지 로드 시 실행함 {% endcomment %
-    (() => {
-      // {% comment %} 최근 업데이트 초기화 {% endcomment %}
-      updateWorkHistory();
-      // {% comment %} 5초마다 업데이트 {% endcomment
-      setInterval(updateWorkHistory, 5000)
+    // {% comment %} 장비 목록 로드 {% endcomment %}
+    async function loadVideoEquipment() {
+      return await fetch("{% url 'api:dashboard:video_equipment' %}")
+        .then(response => response.json())
+        .then(data => {
+          const videoEquipment = document.querySelector('#equipment-list')
+
+          videoEquipment.innerHTML = ''
+
+          data.result.forEach(equipment => {
+            const row = document.createElement('li')
+            row.innerHTML = `
+              <a class="nav-link" href="#" onclick="changeStream(this, '${equipment.device_address}')" %}">${equipment.name}</a>
+            `
+            videoEquipment.appendChild(row)
+          })
+        })
+    }
+
+    function changeStream(element, device_address) {
+      // {% comment %} 장비 선택 시 활성화 {% endcomment %}
+      const videoEquipment = document.querySelector('#equipment-list')
+      videoEquipment.querySelectorAll('a').forEach((a) => {
+        a.classList.remove('active')
+      });
+      element.classList.add('active')
+
 
       // {% comment %} 웹소켓 스트리밍 {% endcomment %}
       // {% comment %} static/wss.js 참조 {% endcomment %}
-      const streamer = new WebSocketStreamer(stereamUrl, img_write, log_write);
+      if (streamer != null) {
+        streamer.disconnect();
+      }
+
+      streamer = new WebSocketStreamer(device_address, img_write, log_write);
       streamer.connect();
+    }
+
+
+    // {% comment %} 페이지 로드 시 실행함 {% endcomment %}
+    (async() => {
+      // {% comment %} 최근 업데이트 초기화 {% endcomment %}
+      updateWorkHistory();
+      // {% comment %} 5초마다 업데이트 {% endcomment
+      setInterval(updateWorkHistory, 5000);
+
+      // {% comment %} 장비 목록 로드 {% endcomment %}
+      await loadVideoEquipment();
+
+      // {% comment %} 첫번째 장비로 스트리밍 시작 {% endcomment %}
+      const videoEquipment = document.querySelector('#equipment-list');
+      videoEquipment.querySelector('a')?.click();
     })();
   {% endblock %}
 </script>

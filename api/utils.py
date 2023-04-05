@@ -1,4 +1,5 @@
 from dig_site.models import WorkHistory
+from django.http import JsonResponse
 
 
 def work_to_dict(work: WorkHistory):
@@ -20,3 +21,13 @@ def work_to_dict(work: WorkHistory):
         'updated_at': work.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
         'updated_at_timeonly': work.updated_at.strftime('%H:%M:%S')
     }
+
+def login_required_json(function):
+    def wrap(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({
+                'status': 'error',
+                'error': 'Unauthorized'
+            }, status=401)
+        return function(request, *args, **kwargs)
+    return wrap

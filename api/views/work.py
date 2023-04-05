@@ -2,23 +2,23 @@ from django.shortcuts import render
 from django.views.decorators.csrf import requires_csrf_token
 from django.http import JsonResponse
 from django.db.models import Q
-from django.contrib.auth.decorators import login_required
 from django.core.files.base import ContentFile
 
 
 from common.models import Image
 from dig_site.models import SiteInfo, SiteJoin, WorkHistory
 
-from ..utils import work_to_dict
+from ..utils import work_to_dict, login_required_json
 from django.contrib.auth.models import User
 
 import base64
 import datetime
 import json
+import random
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def load(request):
     """
     작업 일지 데이터를 가져오는 API
@@ -52,7 +52,7 @@ def load(request):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def new(request, date, site):
     """
     새로운 작업 일지 데이터를 생성하는 API
@@ -75,7 +75,7 @@ def new(request, date, site):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def update(request, id):
     """
     작업 일지 데이터를 수정하는 API
@@ -125,8 +125,15 @@ def update(request, id):
         fmt, img = i.split(';base64,')
         ext = fmt.split('/')[-1]
 
+        # 중복 방지를 위해 랜덤한 id를 생성
+        rand_id = random.randint(0, 1000000000)
+        rand_id = f'{rand_id:010d}'
+        
+        # 파일명
+        name = f'{id}_{rand_id}.{ext}'
+
         # 디코딩하여 image를 생성
-        data = ContentFile(base64.b64decode(img), name=f'{id}.{ext}')
+        data = ContentFile(base64.b64decode(img), name=name)
 
         # 해당 image를 필드에 추가
         image = Image.objects.create(image=data)
@@ -143,7 +150,7 @@ def update(request, id):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def workers(request):
     """
     작업자 목록을 가져오는 API
@@ -187,7 +194,7 @@ def workers(request):
 
 
 @requires_csrf_token
-@login_required
+@login_required_json
 def recent(request):
     """
     최근 작업 일지 데이터를 가져오는 API
