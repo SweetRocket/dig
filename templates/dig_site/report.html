@@ -171,9 +171,9 @@
   {% if reports.has_other_pages %}
     <ul class="pagination" id="report-page">
       <li class="page-item{% if not reports.has_previous %} disabled{% endif %}">
-        <a class="page-link" aria-label="Previous" {% if reports.has_previous %}data-page="{{ reports.previous_page_number }}"{% endif %}>
+        <a class="page-link" aria-label="이전" {% if reports.has_previous %}data-page="{{ reports.previous_page_number }}"{% endif %}>
           <span aria-hidden="true">&laquo;</span>
-          <span class="sr-only">Previous</span>
+          <span class="sr-only">이전</span>
         </a>
       </li>
 
@@ -184,9 +184,9 @@
       {% endfor %}
 
       <li class="page-item{% if not reports.has_next %} disabled{% endif %}">
-        <a class="page-link" aria-label="Next" {% if reports.has_next %}data-page="{{ reports.next_page_number }}"{% endif %}>
+        <a class="page-link" aria-label="다음" {% if reports.has_next %}data-page="{{ reports.next_page_number }}"{% endif %}>
           <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Next</span>
+          <span class="sr-only">다음</span>
         </a>
       </li>
   </div>
