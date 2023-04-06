@@ -130,7 +130,7 @@ class Command(BaseCommand):
             # 프로필 재설정
             p.user = u
             p.emp = e
-            p.PositionChoices = position
+            p.position = position
             p.age = age
             p.phone_number = phone_number
             p.address = address

@@ -39,7 +39,7 @@ class Profile(models.Model):
     sex = models.CharField(max_length=32)
 
     # 직급
-    PositionChoices = models.PositiveIntegerField(
+    position = models.PositiveIntegerField(
         choices=PositionChoices.choices, default=PositionChoices.EMPLOYEE)
 
     # 나이
@@ -55,7 +55,7 @@ class Profile(models.Model):
     emg_contact = PhoneNumberField(region='KR')  # type: ignore
 
     def __str__(self):
-        return f'{self.user.last_name}{self.user.first_name}, {PositionChoices(self.PositionChoices).label} ({self.user.username})'
+        return f'{self.user.last_name}{self.user.first_name}, {PositionChoices(self.position).label} ({self.user.username})'
 
 
 # 로그
